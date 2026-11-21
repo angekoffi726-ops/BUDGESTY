@@ -25,8 +25,8 @@ export default defineConfig(() => {
           short_name: 'BUDGESTY',
           description:
             'Application de gestion budgétaire personnelle en F CFA : salaire, fixes irréversibles, dépenses, caisses et coffre loyer.',
-          theme_color: '#075B2E',
-          background_color: '#FAF3E8',
+          theme_color: '#C2410C',
+          background_color: '#F4E3CA',
           display: 'standalone',
           orientation: 'portrait-primary',
           start_url: '/',

@@ -1,0 +1,6 @@
+{
+  "name": "BUDGESTY",
+  "description": "Application de gestion budgétaire personnelle mensuelle en F CFA avec suivi du salaire, fixes irréversibles, dépenses, caisses, coffre loyer hors budget et bilan PDF.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

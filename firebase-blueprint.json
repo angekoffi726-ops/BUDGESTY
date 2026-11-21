@@ -1,0 +1,270 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Profil utilisateur BUDGESTY propriétaire des budgets mensuels 2027.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 160
+        },
+        "displayName": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["userId", "email", "displayName", "createdAt", "updatedAt"]
+    },
+    "BudgetMonth": {
+      "title": "BudgetMonth",
+      "description": "Cycle budgétaire mensuel (du 21 au 20) pour l'année 2027 avec salaire, loyer hors budget, fixes, dépenses et caisses.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "moisId": {
+          "type": "string",
+          "maxLength": 7,
+          "pattern": "^2027-(0[1-9]|1[0-2])$"
+        },
+        "ordre": {
+          "type": "integer"
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "cycleLabel": {
+          "type": "string",
+          "maxLength": 60
+        },
+        "cycleDebut": {
+          "type": "string",
+          "maxLength": 10,
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "cycleFin": {
+          "type": "string",
+          "maxLength": 10,
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "statut": {
+          "type": "string",
+          "enum": ["OUVERT", "VERROUILLE", "CLOTURE"]
+        },
+        "salaire": {
+          "type": "object"
+        },
+        "loyer": {
+          "type": "object"
+        },
+        "fixes": {
+          "type": "object"
+        },
+        "depensesCategories": {
+          "type": "object"
+        },
+        "caisses": {
+          "type": "object"
+        },
+        "clotureLe": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "userId",
+        "moisId",
+        "ordre",
+        "label",
+        "cycleLabel",
+        "cycleDebut",
+        "cycleFin",
+        "statut",
+        "salaire",
+        "loyer",
+        "fixes",
+        "depensesCategories",
+        "caisses",
+        "clotureLe",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ExpenseEntry": {
+      "title": "ExpenseEntry",
+      "description": "Dépense datée enregistrée dans une catégorie de dépenses petit à petit pour un mois ouvert.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "moisId": {
+          "type": "string",
+          "maxLength": 7,
+          "pattern": "^2027-(0[1-9]|1[0-2])$"
+        },
+        "categorieId": {
+          "type": "string",
+          "enum": ["maison", "internet", "eau_laver"]
+        },
+        "date": {
+          "type": "string",
+          "maxLength": 10,
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "montant": {
+          "type": "integer"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 240
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["userId", "moisId", "categorieId", "date", "montant", "description", "note", "createdAt"]
+    },
+    "HistoryEntry": {
+      "title": "HistoryEntry",
+      "description": "Journal immuable d'une opération budgétaire BUDGESTY.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "moisId": {
+          "type": "string",
+          "maxLength": 7,
+          "pattern": "^2027-(0[1-9]|1[0-2])$"
+        },
+        "moisLabel": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "dateOperation": {
+          "type": "string",
+          "maxLength": 10,
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "heureOperation": {
+          "type": "string",
+          "maxLength": 8,
+          "pattern": "^\\d{2}:\\d{2}:\\d{2}$"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "MODIFICATION_SALAIRE",
+            "ALIMENTATION_SALAIRE",
+            "BONUS_SALAIRE",
+            "TRANSFERT_AUTO_SURPLUS",
+            "PAIEMENT_LOYER",
+            "VALIDATION_FIXE",
+            "AJOUT_DEPENSE",
+            "CLOTURE_DEPENSE",
+            "ALIMENTATION_CAISSE",
+            "RETRAIT_CAISSE",
+            "TRANSFERT_CAISSE_SURPLUS",
+            "TRANSFERT_SURPLUS_CAISSE",
+            "RETRAIT_SURPLUS",
+            "CLOTURE_MOIS"
+          ]
+        },
+        "categorie": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "montant": {
+          "type": "integer"
+        },
+        "motif": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "soldeAvant": {
+          "type": "integer"
+        },
+        "soldeApres": {
+          "type": "integer"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "userId",
+        "moisId",
+        "moisLabel",
+        "dateOperation",
+        "heureOperation",
+        "type",
+        "categorie",
+        "montant",
+        "motif",
+        "soldeAvant",
+        "soldeApres",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Document profil privé de l'utilisateur authentifié."
+    },
+    "/users/{userId}/mois/{moisId}": {
+      "schema": { "$ref": "#/entities/BudgetMonth" },
+      "description": "Les 12 mois budgétaires de 2027 (cycles du 21 au 20) appartenant à l'utilisateur."
+    },
+    "/users/{userId}/mois/{moisId}/depenses/{depenseId}": {
+      "schema": { "$ref": "#/entities/ExpenseEntry" },
+      "description": "Dépenses datées par mois et par catégorie."
+    },
+    "/users/{userId}/historique/{entryId}": {
+      "schema": { "$ref": "#/entities/HistoryEntry" },
+      "description": "Historique général immuable de toutes les opérations de l'utilisateur."
+    }
+  }
+}

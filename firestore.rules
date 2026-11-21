@@ -1,0 +1,365 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global safety net: default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Primitive Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidMoisId(moisId) {
+      return moisId is string && moisId.size() == 7 && moisId.matches('^2027-(0[1-9]|1[0-2])$');
+    }
+
+    function isValidDateStr(d) {
+      return d is string && d.size() == 10 && d.matches('^\\d{4}-\\d{2}-\\d{2}$');
+    }
+
+    function isValidTimeStr(t) {
+      return t is string && t.size() == 8 && t.matches('^\\d{2}:\\d{2}:\\d{2}$');
+    }
+
+    function isBoundedInt(val, minVal, maxVal) {
+      return val is int && val >= minVal && val <= maxVal;
+    }
+
+    // --- Entity Validators ---
+    function isValidUserProfile(data, userId) {
+      return data.keys().hasAll(['userId', 'email', 'displayName', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['userId', 'email', 'displayName', 'createdAt', 'updatedAt'])
+        && data.userId is string && data.userId == userId && data.userId == request.auth.uid && data.userId.size() <= 128
+        && data.email is string && data.email.size() >= 3 && data.email.size() <= 160
+        && data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 80
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidSalaireMap(s) {
+      return s is map
+        && s.keys().hasAll([
+          'salaireReference', 'montantARecevoir', 'bonus', 'datePrevue',
+          'motifModification', 'alimentee', 'montantActif',
+          'argentEncoreDisponible', 'excedentTransfere', 'alimenteeLe'
+        ])
+        && s.keys().hasOnly([
+          'salaireReference', 'montantARecevoir', 'bonus', 'datePrevue',
+          'motifModification', 'alimentee', 'montantActif',
+          'argentEncoreDisponible', 'excedentTransfere', 'alimenteeLe'
+        ])
+        && s.salaireReference == 155000
+        && isBoundedInt(s.montantARecevoir, 0, 50000000)
+        && isBoundedInt(s.bonus, 0, 50000000)
+        && isValidDateStr(s.datePrevue)
+        && s.motifModification is string && s.motifModification.size() <= 200
+        && s.alimentee is bool
+        && isBoundedInt(s.montantActif, 0, 155000)
+        && isBoundedInt(s.argentEncoreDisponible, 0, 155000)
+        && s.argentEncoreDisponible <= s.montantActif
+        && isBoundedInt(s.excedentTransfere, 0, 50000000)
+        && s.alimenteeLe is string && s.alimenteeLe.size() <= 40;
+    }
+
+    function isValidLoyerMap(l) {
+      return l is map
+        && l.keys().hasAll(['montant', 'paye', 'payeLe', 'dateLimite'])
+        && l.keys().hasOnly(['montant', 'paye', 'payeLe', 'dateLimite'])
+        && l.montant == 35350
+        && l.paye is bool
+        && l.payeLe is string && l.payeLe.size() <= 40
+        && isValidDateStr(l.dateLimite);
+    }
+
+    function isValidFixeItem(item, expectedMontant) {
+      return item is map
+        && item.keys().hasAll(['label', 'montant', 'valide', 'valideLe'])
+        && item.keys().hasOnly(['label', 'montant', 'valide', 'valideLe'])
+        && item.label is string && item.label.size() >= 1 && item.label.size() <= 50
+        && item.montant == expectedMontant
+        && item.valide is bool
+        && item.valideLe is string && item.valideLe.size() <= 40;
+    }
+
+    function isValidFixesMap(f) {
+      return f is map
+        && f.keys().hasAll(['epargne', 'soutien_famille', 'don_papa', 'femme_enfant', 'eau_boire'])
+        && f.keys().hasOnly(['epargne', 'soutien_famille', 'don_papa', 'femme_enfant', 'eau_boire'])
+        && isValidFixeItem(f.epargne, 40000)
+        && isValidFixeItem(f.soutien_famille, 30000)
+        && isValidFixeItem(f.don_papa, 10000)
+        && isValidFixeItem(f.femme_enfant, 20000)
+        && isValidFixeItem(f.eau_boire, 2000);
+    }
+
+    function isValidDepenseCat(cat, expectedBudget) {
+      return cat is map
+        && cat.keys().hasAll(['label', 'budgetAlloue', 'depenseCumulee', 'cloturee', 'clotureeLe', 'resteTransfereSurplus'])
+        && cat.keys().hasOnly(['label', 'budgetAlloue', 'depenseCumulee', 'cloturee', 'clotureeLe', 'resteTransfereSurplus'])
+        && cat.label is string && cat.label.size() >= 1 && cat.label.size() <= 80
+        && cat.budgetAlloue == expectedBudget
+        && isBoundedInt(cat.depenseCumulee, 0, expectedBudget)
+        && cat.cloturee is bool
+        && cat.clotureeLe is string && cat.clotureeLe.size() <= 40
+        && isBoundedInt(cat.resteTransfereSurplus, 0, expectedBudget);
+    }
+
+    function isValidDepensesCategoriesMap(dc) {
+      return dc is map
+        && dc.keys().hasAll(['maison', 'internet', 'eau_laver'])
+        && dc.keys().hasOnly(['maison', 'internet', 'eau_laver'])
+        && isValidDepenseCat(dc.maison, 30000)
+        && isValidDepenseCat(dc.internet, 5000)
+        && isValidDepenseCat(dc.eau_laver, 1000);
+    }
+
+    function isValidCaisseItem(c, expectedDotation) {
+      return c is map
+        && c.keys().hasAll(['label', 'dotationMensuelle', 'dotationAlimentee', 'soldePrecedent', 'soldeActuel'])
+        && c.keys().hasOnly(['label', 'dotationMensuelle', 'dotationAlimentee', 'soldePrecedent', 'soldeActuel'])
+        && c.label is string && c.label.size() >= 1 && c.label.size() <= 50
+        && c.dotationMensuelle == expectedDotation
+        && c.dotationAlimentee is bool
+        && isBoundedInt(c.soldePrecedent, 0, 500000000)
+        && isBoundedInt(c.soldeActuel, 0, 500000000);
+    }
+
+    function isValidCaissesMap(cs) {
+      return cs is map
+        && cs.keys().hasAll(['sante', 'vetements', 'secours', 'epargne', 'surplus'])
+        && cs.keys().hasOnly(['sante', 'vetements', 'secours', 'epargne', 'surplus'])
+        && isValidCaisseItem(cs.sante, 5000)
+        && isValidCaisseItem(cs.vetements, 7000)
+        && isValidCaisseItem(cs.secours, 5000)
+        && isValidCaisseItem(cs.epargne, 0)
+        && isValidCaisseItem(cs.surplus, 0);
+    }
+
+    function isValidBudgetMonth(data, userId, moisId) {
+      return data.keys().hasAll([
+          'userId', 'moisId', 'ordre', 'label', 'cycleLabel', 'cycleDebut', 'cycleFin',
+          'statut', 'salaire', 'loyer', 'fixes', 'depensesCategories', 'caisses',
+          'clotureLe', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'userId', 'moisId', 'ordre', 'label', 'cycleLabel', 'cycleDebut', 'cycleFin',
+          'statut', 'salaire', 'loyer', 'fixes', 'depensesCategories', 'caisses',
+          'clotureLe', 'createdAt', 'updatedAt'
+        ])
+        && data.userId is string && data.userId == userId && data.userId == request.auth.uid && data.userId.size() <= 128
+        && data.moisId is string && data.moisId == moisId && isValidMoisId(data.moisId)
+        && isBoundedInt(data.ordre, 1, 12)
+        && data.label is string && data.label.size() >= 1 && data.label.size() <= 40
+        && data.cycleLabel is string && data.cycleLabel.size() >= 1 && data.cycleLabel.size() <= 60
+        && isValidDateStr(data.cycleDebut)
+        && isValidDateStr(data.cycleFin)
+        && data.statut in ['OUVERT', 'VERROUILLE', 'CLOTURE']
+        && isValidSalaireMap(data.salaire)
+        && isValidLoyerMap(data.loyer)
+        && isValidFixesMap(data.fixes)
+        && isValidDepensesCategoriesMap(data.depensesCategories)
+        && isValidCaissesMap(data.caisses)
+        && data.clotureLe is string && data.clotureLe.size() <= 40
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function respectsIrreversibility(next, prev) {
+      return (!prev.salaire.alimentee || (
+          next.salaire.alimentee == true
+          && next.salaire.montantActif == prev.salaire.montantActif
+          && next.salaire.montantARecevoir == prev.salaire.montantARecevoir
+          && next.salaire.bonus == prev.salaire.bonus
+          && next.salaire.excedentTransfere == prev.salaire.excedentTransfere
+          && next.salaire.alimenteeLe == prev.salaire.alimenteeLe
+        ))
+        && (next.salaire.alimentee || (
+          next.loyer.paye == false
+          && next.fixes.epargne.valide == false
+          && next.fixes.soutien_famille.valide == false
+          && next.fixes.don_papa.valide == false
+          && next.fixes.femme_enfant.valide == false
+          && next.fixes.eau_boire.valide == false
+          && next.caisses.sante.dotationAlimentee == false
+          && next.caisses.vetements.dotationAlimentee == false
+          && next.caisses.secours.dotationAlimentee == false
+        ))
+        && (!prev.loyer.paye || (next.loyer.paye == true && next.loyer.payeLe == prev.loyer.payeLe))
+        && (!prev.fixes.epargne.valide || (next.fixes.epargne.valide == true && next.fixes.epargne.valideLe == prev.fixes.epargne.valideLe))
+        && (!prev.fixes.soutien_famille.valide || (next.fixes.soutien_famille.valide == true && next.fixes.soutien_famille.valideLe == prev.fixes.soutien_famille.valideLe))
+        && (!prev.fixes.don_papa.valide || (next.fixes.don_papa.valide == true && next.fixes.don_papa.valideLe == prev.fixes.don_papa.valideLe))
+        && (!prev.fixes.femme_enfant.valide || (next.fixes.femme_enfant.valide == true && next.fixes.femme_enfant.valideLe == prev.fixes.femme_enfant.valideLe))
+        && (!prev.fixes.eau_boire.valide || (next.fixes.eau_boire.valide == true && next.fixes.eau_boire.valideLe == prev.fixes.eau_boire.valideLe))
+        && (!prev.depensesCategories.maison.cloturee || (next.depensesCategories.maison.cloturee == true && next.depensesCategories.maison.depenseCumulee == prev.depensesCategories.maison.depenseCumulee))
+        && (!prev.depensesCategories.internet.cloturee || (next.depensesCategories.internet.cloturee == true && next.depensesCategories.internet.depenseCumulee == prev.depensesCategories.internet.depenseCumulee))
+        && (!prev.depensesCategories.eau_laver.cloturee || (next.depensesCategories.eau_laver.cloturee == true && next.depensesCategories.eau_laver.depenseCumulee == prev.depensesCategories.eau_laver.depenseCumulee))
+        && (!prev.caisses.sante.dotationAlimentee || next.caisses.sante.dotationAlimentee == true)
+        && (!prev.caisses.vetements.dotationAlimentee || next.caisses.vetements.dotationAlimentee == true)
+        && (!prev.caisses.secours.dotationAlimentee || next.caisses.secours.dotationAlimentee == true)
+        && next.caisses.sante.soldePrecedent == prev.caisses.sante.soldePrecedent
+        && next.caisses.vetements.soldePrecedent == prev.caisses.vetements.soldePrecedent
+        && next.caisses.secours.soldePrecedent == prev.caisses.secours.soldePrecedent
+        && next.caisses.epargne.soldePrecedent == prev.caisses.epargne.soldePrecedent
+        && next.caisses.surplus.soldePrecedent == prev.caisses.surplus.soldePrecedent;
+    }
+
+    function isValidExpenseEntry(data, userId, moisId) {
+      return data.keys().hasAll(['userId', 'moisId', 'categorieId', 'date', 'montant', 'description', 'note', 'createdAt'])
+        && data.keys().hasOnly(['userId', 'moisId', 'categorieId', 'date', 'montant', 'description', 'note', 'createdAt'])
+        && data.userId is string && data.userId == userId && data.userId == request.auth.uid && data.userId.size() <= 128
+        && data.moisId is string && data.moisId == moisId && isValidMoisId(data.moisId)
+        && data.categorieId in ['maison', 'internet', 'eau_laver']
+        && isValidDateStr(data.date)
+        && isBoundedInt(data.montant, 1, 155000)
+        && data.description is string && data.description.size() >= 1 && data.description.size() <= 140
+        && data.note is string && data.note.size() <= 240
+        && data.createdAt is timestamp;
+    }
+
+    function isValidHistoryEntry(data, userId) {
+      return data.keys().hasAll([
+          'userId', 'moisId', 'moisLabel', 'dateOperation', 'heureOperation',
+          'type', 'categorie', 'montant', 'motif', 'soldeAvant', 'soldeApres', 'createdAt'
+        ])
+        && data.keys().hasOnly([
+          'userId', 'moisId', 'moisLabel', 'dateOperation', 'heureOperation',
+          'type', 'categorie', 'montant', 'motif', 'soldeAvant', 'soldeApres', 'createdAt'
+        ])
+        && data.userId is string && data.userId == userId && data.userId == request.auth.uid && data.userId.size() <= 128
+        && isValidMoisId(data.moisId)
+        && data.moisLabel is string && data.moisLabel.size() >= 1 && data.moisLabel.size() <= 40
+        && isValidDateStr(data.dateOperation)
+        && isValidTimeStr(data.heureOperation)
+        && data.type in [
+          'MODIFICATION_SALAIRE', 'ALIMENTATION_SALAIRE', 'BONUS_SALAIRE',
+          'TRANSFERT_AUTO_SURPLUS', 'PAIEMENT_LOYER', 'VALIDATION_FIXE',
+          'AJOUT_DEPENSE', 'CLOTURE_DEPENSE', 'ALIMENTATION_CAISSE',
+          'RETRAIT_CAISSE', 'TRANSFERT_CAISSE_SURPLUS', 'TRANSFERT_SURPLUS_CAISSE',
+          'RETRAIT_SURPLUS', 'CLOTURE_MOIS'
+        ]
+        && data.categorie is string && data.categorie.size() >= 1 && data.categorie.size() <= 60
+        && isBoundedInt(data.montant, 0, 100000000)
+        && data.motif is string && data.motif.size() >= 1 && data.motif.size() <= 240
+        && isBoundedInt(data.soldeAvant, 0, 500000000)
+        && isBoundedInt(data.soldeApres, 0, 500000000)
+        && data.createdAt is timestamp;
+    }
+
+    // --- Collection Rules ---
+    match /users/{userId} {
+      allow get: if isValidId(userId) && isOwner(userId);
+      allow list: if false;
+      allow create: if isValidId(userId)
+        && isOwner(userId)
+        && isValidUserProfile(incoming(), userId)
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(userId)
+        && isOwner(userId)
+        && isValidUserProfile(incoming(), userId)
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'updatedAt']);
+      allow delete: if false;
+
+      match /mois/{moisId} {
+        allow get: if isValidId(userId) && isValidMoisId(moisId) && isOwner(userId);
+        allow list: if isValidId(userId) && isOwner(userId) && resource.data.userId == request.auth.uid;
+        allow create: if isValidId(userId)
+          && isValidMoisId(moisId)
+          && isOwner(userId)
+          && isValidBudgetMonth(incoming(), userId, moisId)
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time
+          && existsAfter(/databases/$(database)/documents/users/$(userId));
+        allow update: if isValidId(userId)
+          && isValidMoisId(moisId)
+          && isOwner(userId)
+          && isValidBudgetMonth(incoming(), userId, moisId)
+          && existing().statut != 'CLOTURE'
+          && incoming().userId == existing().userId
+          && incoming().moisId == existing().moisId
+          && incoming().ordre == existing().ordre
+          && incoming().label == existing().label
+          && incoming().cycleLabel == existing().cycleLabel
+          && incoming().cycleDebut == existing().cycleDebut
+          && incoming().cycleFin == existing().cycleFin
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && (
+            // Action 1: Open next month with carried-over balances (VERROUILLE -> OUVERT)
+            (
+              existing().statut == 'VERROUILLE'
+              && incoming().statut == 'OUVERT'
+              && incoming().diff(existing()).affectedKeys().hasOnly(['statut', 'caisses', 'updatedAt'])
+            )
+            ||
+            // Action 2: Modify/feed salary, validate fixes, record/close expenses, rent, caisses on OUVERT month
+            (
+              existing().statut == 'OUVERT'
+              && incoming().statut == 'OUVERT'
+              && respectsIrreversibility(incoming(), existing())
+              && incoming().diff(existing()).affectedKeys().hasOnly([
+                'salaire', 'loyer', 'fixes', 'depensesCategories', 'caisses', 'updatedAt'
+              ])
+            )
+            ||
+            // Action 3: Permanently close an OUVERT month (OUVERT -> CLOTURE)
+            (
+              existing().statut == 'OUVERT'
+              && incoming().statut == 'CLOTURE'
+              && incoming().clotureLe.size() >= 1
+              && incoming().diff(existing()).affectedKeys().hasOnly(['statut', 'clotureLe', 'updatedAt'])
+            )
+          );
+        allow delete: if false;
+
+        match /depenses/{depenseId} {
+          allow get: if isValidId(userId) && isValidMoisId(moisId) && isValidId(depenseId) && isOwner(userId);
+          allow list: if isValidId(userId) && isValidMoisId(moisId) && isOwner(userId) && resource.data.userId == request.auth.uid;
+          allow create: if isValidId(userId)
+            && isValidMoisId(moisId)
+            && isValidId(depenseId)
+            && isOwner(userId)
+            && isValidExpenseEntry(incoming(), userId, moisId)
+            && incoming().createdAt == request.time
+            && getAfter(/databases/$(database)/documents/users/$(userId)/mois/$(moisId)).data.statut == 'OUVERT'
+            && getAfter(/databases/$(database)/documents/users/$(userId)/mois/$(moisId)).data.salaire.alimentee == true;
+          allow update, delete: if false;
+        }
+      }
+
+      match /historique/{entryId} {
+        allow get: if isValidId(userId) && isValidId(entryId) && isOwner(userId);
+        allow list: if isValidId(userId) && isOwner(userId) && resource.data.userId == request.auth.uid;
+        allow create: if isValidId(userId)
+          && isValidId(entryId)
+          && isOwner(userId)
+          && isValidHistoryEntry(incoming(), userId)
+          && incoming().createdAt == request.time
+          && exists(/databases/$(database)/documents/users/$(userId)/mois/$(incoming().moisId));
+        allow update, delete: if false;
+      }
+    }
+  }
+}

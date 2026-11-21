@@ -15,7 +15,7 @@
   body {
     font-family: var(--font-sans);
     color: #111111;
-    background: linear-gradient(135deg, #075B2E 0%, #006B35 32%, #4C1D95 72%, #7C3AED 100%);
+    background: linear-gradient(135deg, #04361B 0%, #075B2E 28%, #006B35 50%, #C2410C 80%, #EA580C 100%);
     background-attachment: fixed;
     min-height: 100vh;
     overflow-x: hidden;
@@ -41,28 +41,37 @@
 
 @keyframes auroraDriftA {
   0%, 100% {
-    transform: translate3d(-5%, -4%, 0) scale(1);
+    transform: translate3d(-6%, -4%, 0) scale(1);
   }
   50% {
-    transform: translate3d(12%, 9%, 0) scale(1.18);
+    transform: translate3d(14%, 10%, 0) scale(1.2);
   }
 }
 
 @keyframes auroraDriftB {
   0%, 100% {
-    transform: translate3d(5%, 4%, 0) scale(1.06);
+    transform: translate3d(6%, 4%, 0) scale(1.06);
   }
   50% {
-    transform: translate3d(-12%, -9%, 0) scale(0.95);
+    transform: translate3d(-14%, -10%, 0) scale(0.94);
   }
 }
 
 @keyframes auroraWave {
   0%, 100% {
-    transform: translate3d(-9%, 5%, 0) rotate(-4deg) scale(1);
+    transform: translate3d(-10%, 6%, 0) rotate(-5deg) scale(1);
   }
   50% {
-    transform: translate3d(9%, -7%, 0) rotate(5deg) scale(1.12);
+    transform: translate3d(10%, -8%, 0) rotate(6deg) scale(1.14);
+  }
+}
+
+@keyframes gradientCanvasShift {
+  0%, 100% {
+    transform: translate3d(-4%, -4%, 0) scale(1.08);
+  }
+  50% {
+    transform: translate3d(4%, 4%, 0) scale(1.14);
   }
 }
 
@@ -99,13 +108,18 @@
   will-change: transform;
 }
 
+.animate-bg-shift {
+  animation: gradientCanvasShift 14s ease-in-out infinite;
+  will-change: transform;
+}
+
 .animate-sheen {
-  animation: sheenSweep 5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  animation: sheenSweep 4.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
   will-change: transform;
 }
 
 .animate-progress-glint {
-  animation: progressGlint 2.6s ease-in-out infinite;
+  animation: progressGlint 2.4s ease-in-out infinite;
   will-change: transform;
 }
 
@@ -113,6 +127,7 @@
   .animate-aurora-a,
   .animate-aurora-b,
   .animate-aurora-wave,
+  .animate-bg-shift,
   .animate-sheen,
   .animate-progress-glint {
     animation: none;

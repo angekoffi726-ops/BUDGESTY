@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#054422" />
+      <stop offset="38%" stop-color="#075B2E" />
+      <stop offset="70%" stop-color="#C2410C" />
+      <stop offset="100%" stop-color="#EA580C" />
+    </linearGradient>
+    <linearGradient id="accentGlow" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FAF3E8" stop-opacity="0.98" />
+      <stop offset="60%" stop-color="#F5E6D3" stop-opacity="0.96" />
+      <stop offset="100%" stop-color="#FDBA74" stop-opacity="0.96" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#bgGrad)" />
+  <circle cx="404" cy="112" r="92" fill="#FB923C" fill-opacity="0.32" />
+  <circle cx="112" cy="404" r="108" fill="#DDEBD8" fill-opacity="0.22" />
+  <rect x="64" y="64" width="384" height="384" rx="84" stroke="#FAF3E8" stroke-opacity="0.3" stroke-width="6" />
+  <path
+    d="M168 128H276C328 128 362 156 362 200C362 227 347 247 322 258C354 268 374 292 374 326C374 374 336 404 280 404H168V128ZM222 238H270C295 238 308 225 308 206C308 187 295 174 270 174H222V238ZM222 358H276C304 358 318 344 318 322C318 300 304 286 276 286H222V358Z"
+    fill="url(#accentGlow)"
+  />
+  <circle cx="380" cy="144" r="24" fill="#FB923C" stroke="#FAF3E8" stroke-width="6" />
+</svg>

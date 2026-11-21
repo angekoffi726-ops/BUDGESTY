@@ -53,11 +53,11 @@ export const FixesView: React.FC<FixesViewProps> = ({ userId, month }) => {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
-        className="bg-white/94 backdrop-blur-2xl border border-white/85 rounded-3xl p-5 sm:p-6 shadow-[0_24px_60px_-16px_rgba(38,18,78,0.42)] space-y-5"
+        className="bg-[#FDF8F0]/94 backdrop-blur-2xl border border-[#F5E6D3]/95 rounded-3xl p-5 sm:p-6 shadow-[0_24px_60px_-16px_rgba(4,40,20,0.42)] space-y-5"
       >
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#DDEBD8]">
+        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#EFE0CC]">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#075B2E] via-[#006B35] to-[#6D28D9] text-white flex items-center justify-center shadow-md shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#075B2E] via-[#006B35] to-[#EA580C] text-white flex items-center justify-center shadow-md shrink-0">
               <LockKeyhole className="w-5 h-5" />
             </div>
             <div>
@@ -72,22 +72,22 @@ export const FixesView: React.FC<FixesViewProps> = ({ userId, month }) => {
           </div>
           <div className="text-left sm:text-right">
             <p className="text-xs text-[#111111]/60">Validés / Enveloppe</p>
-            <p className="font-mono-num text-lg font-bold text-[#5B21B6]">
+            <p className="font-mono-num text-lg font-bold text-[#EA580C]">
               <AnimatedNumber value={totalValide} /> / {formatFCFA(TOTAL_FIXES_BUDGET)}
             </p>
           </div>
         </div>
 
         {/* Gradient Progress Banner with animated SVG ring */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#054422] via-[#006B35] to-[#6D28D9] text-white p-4 sm:p-5 shadow-[0_18px_36px_-12px_rgba(91,33,182,0.6)] flex items-center justify-between gap-4">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#054422] via-[#006B35] to-[#C2410C] text-white p-4 sm:p-5 shadow-[0_18px_36px_-12px_rgba(4,40,20,0.58)] flex items-center justify-between gap-4">
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 w-36 bg-gradient-to-r from-transparent via-white/12 to-transparent animate-sheen"
+            className="pointer-events-none absolute inset-y-0 w-36 bg-gradient-to-r from-transparent via-white/15 to-transparent animate-sheen"
           />
           <div className="relative z-10 flex-1 space-y-2.5">
             <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-              <span className="font-medium text-[#DDD6FE]">Argent encore disponible ce mois</span>
-              <span className="font-mono-num font-extrabold text-lg text-white">
+              <span className="font-medium text-[#FDE8D0]">Argent encore disponible ce mois</span>
+              <span className="font-mono-num font-extrabold text-lg text-[#FAF3E8]">
                 <AnimatedNumber value={month.salaire.argentEncoreDisponible} />
               </span>
             </div>
@@ -96,7 +96,7 @@ export const FixesView: React.FC<FixesViewProps> = ({ userId, month }) => {
                 initial={{ width: 0 }}
                 animate={{ width: `${progressPct}%` }}
                 transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                className="relative h-full rounded-full bg-gradient-to-r from-[#DDEBD8] via-white to-[#C4B5FD] overflow-hidden"
+                className="relative h-full rounded-full bg-gradient-to-r from-[#FAF3E8] via-[#FDE8D0] to-[#FB923C] overflow-hidden"
               >
                 <span className="absolute inset-y-0 w-12 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-progress-glint" />
               </motion.div>
@@ -110,7 +110,7 @@ export const FixesView: React.FC<FixesViewProps> = ({ userId, month }) => {
                 cy="30"
                 r="24"
                 fill="none"
-                stroke="rgba(221,214,254,0.25)"
+                stroke="rgba(250,243,232,0.25)"
                 strokeWidth="5"
               />
               <motion.circle
@@ -118,7 +118,7 @@ export const FixesView: React.FC<FixesViewProps> = ({ userId, month }) => {
                 cy="30"
                 r="24"
                 fill="none"
-                stroke="#FFFFFF"
+                stroke="#FAF3E8"
                 strokeWidth="5"
                 strokeLinecap="round"
                 strokeDasharray={ringCircumference}
@@ -127,15 +127,15 @@ export const FixesView: React.FC<FixesViewProps> = ({ userId, month }) => {
                 transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
               />
             </svg>
-            <span className="absolute font-mono-num text-xs font-extrabold text-white">
+            <span className="absolute font-mono-num text-xs font-extrabold text-[#FAF3E8]">
               {Math.round(progressPct)}%
             </span>
           </div>
         </div>
 
         {isMonthOpen && !salaryReady && (
-          <div className="p-4 rounded-2xl border border-amber-300 bg-amber-50/95 text-amber-900 text-sm flex items-start gap-2.5">
-            <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5 text-amber-700" />
+          <div className="p-4 rounded-2xl border border-[#FDBA74] bg-gradient-to-r from-[#FAF3E8] to-[#FDE8D0]/85 text-[#7C2D12] text-sm flex items-start gap-2.5">
+            <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5 text-[#EA580C]" />
             <span>
               Salaire non alimenté : alimentez d’abord le salaire dans l’onglet Accueil pour
               pouvoir valider vos fixes.
@@ -160,9 +160,9 @@ export const FixesView: React.FC<FixesViewProps> = ({ userId, month }) => {
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="p-3.5 rounded-xl border border-[#5B21B6]/25 bg-gradient-to-r from-[#DDEBD8]/80 to-[#EDE9FE]/80 text-[#075B2E] text-sm flex items-center gap-2"
+              className="p-3.5 rounded-xl border border-[#F5E6D3] bg-gradient-to-r from-[#FAF3E8] to-[#FDE8D0]/80 text-[#075B2E] text-sm flex items-center gap-2"
             >
-              <CheckCircle2 className="w-4 h-4 shrink-0 text-[#5B21B6]" />
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-[#EA580C]" />
               <span>{successMsg}</span>
             </motion.div>
           )}
@@ -183,15 +183,15 @@ export const FixesView: React.FC<FixesViewProps> = ({ userId, month }) => {
                 whileHover={{ y: -2 }}
                 className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
                   item.valide
-                    ? 'bg-gradient-to-r from-[#DDEBD8]/60 via-white to-[#EDE9FE]/60 border-[#5B21B6]/25 shadow-sm'
-                    : 'bg-white border-[#DDEBD8] hover:border-[#5B21B6]/35 shadow-xs'
+                    ? 'bg-gradient-to-r from-[#FAF3E8] via-[#FDE8D0]/55 to-[#DDEBD8]/55 border-[#FB923C]/40 shadow-sm'
+                    : 'bg-white border-[#EFE0CC] hover:border-[#EA580C]/40 shadow-xs'
                 }`}
               >
                 <div className="space-y-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-semibold text-[#111111]">{item.label}</span>
                     {item.valide && (
-                      <span className="inline-flex items-center gap-1 text-xs font-bold text-[#5B21B6]">
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-[#EA580C]">
                         <Lock className="w-3.5 h-3.5" />
                         Verrouillé
                       </span>
@@ -212,11 +212,11 @@ export const FixesView: React.FC<FixesViewProps> = ({ userId, month }) => {
                   </span>
 
                   {item.valide ? (
-                    <span className="inline-flex items-center gap-1.5 min-h-[42px] px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#DDEBD8] to-[#EDE9FE] text-[#075B2E] text-xs font-bold">
+                    <span className="inline-flex items-center gap-1.5 min-h-[42px] px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#FAF3E8] via-[#FDE8D0] to-[#DDEBD8] text-[#075B2E] border border-[#EFE0CC] text-xs font-bold">
                       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <motion.path
                           d="M5 13l4 4L19 7"
-                          stroke="#5B21B6"
+                          stroke="#EA580C"
                           strokeWidth="2.6"
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -228,13 +228,13 @@ export const FixesView: React.FC<FixesViewProps> = ({ userId, month }) => {
                       Validé
                     </span>
                   ) : confirmKey === key ? (
-                    <div className="flex items-center gap-2 bg-[#EDE9FE]/85 border border-[#5B21B6]/25 p-1.5 rounded-xl">
+                    <div className="flex items-center gap-2 bg-[#FDE8D0]/85 border border-[#FB923C]/40 p-1.5 rounded-xl">
                       <motion.button
                         whileTap={{ scale: 0.96 }}
                         type="button"
                         disabled={busy}
                         onClick={() => handleValidate(key)}
-                        className="min-h-[38px] px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-[#075B2E] to-[#6D28D9] text-white text-xs font-bold cursor-pointer"
+                        className="min-h-[38px] px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-[#075B2E] via-[#006B35] to-[#EA580C] text-white text-xs font-bold cursor-pointer"
                       >
                         Confirmer
                       </motion.button>
@@ -257,8 +257,8 @@ export const FixesView: React.FC<FixesViewProps> = ({ userId, month }) => {
                       onClick={() => setConfirmKey(key)}
                       className={`min-h-[44px] px-5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                         canValidate
-                          ? 'bg-gradient-to-r from-[#075B2E] via-[#006B35] to-[#6D28D9] text-white shadow-md cursor-pointer'
-                          : 'bg-[#DDEBD8]/65 text-[#111111]/45 cursor-not-allowed'
+                          ? 'bg-gradient-to-r from-[#075B2E] via-[#006B35] to-[#EA580C] text-white shadow-md cursor-pointer'
+                          : 'bg-[#EFE0CC]/80 text-[#111111]/45 cursor-not-allowed'
                       }`}
                     >
                       Valider

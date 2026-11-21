@@ -210,32 +210,33 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
 
   return (
     <div className="space-y-5 sm:space-y-6">
-      {/* Hero Emerald-to-Violet Cockpit Card */}
+      {/* Hero Emerald-Orange-Beige Cockpit Card */}
       <motion.section
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
-        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#054422]/95 via-[#006B35]/95 via-[#3B2878]/95 to-[#6D28D9]/95 backdrop-blur-2xl text-white p-5 sm:p-7 shadow-[0_28px_64px_-16px_rgba(45,18,95,0.75)] border border-white/25"
+        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#054422]/96 via-[#006B35]/95 to-[#C2410C]/96 backdrop-blur-2xl text-white p-5 sm:p-7 shadow-[0_28px_64px_-16px_rgba(4,40,20,0.68)] border border-[#FAF3E8]/30"
       >
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 w-48 bg-gradient-to-r from-transparent via-white/15 to-transparent animate-sheen"
+          className="pointer-events-none absolute inset-y-0 w-48 bg-gradient-to-r from-transparent via-white/16 to-transparent animate-sheen"
         />
         <svg
           aria-hidden="true"
           viewBox="0 0 600 220"
-          className="pointer-events-none absolute right-0 bottom-0 w-96 opacity-20"
+          className="pointer-events-none absolute right-0 bottom-0 w-96 opacity-22"
         >
           <motion.path
             d="M0 180 Q 150 90 300 150 T 600 100 L 600 220 L 0 220 Z"
-            fill="url(#heroWaveGrad)"
+            fill="url(#heroWaveWarmGrad)"
             animate={{ y: [0, -7, 0] }}
             transition={{ duration: 6.5, repeat: Infinity, ease: 'easeInOut' }}
           />
           <defs>
-            <linearGradient id="heroWaveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#DDEBD8" />
-              <stop offset="100%" stopColor="#C4B5FD" />
+            <linearGradient id="heroWaveWarmGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#FAF3E8" />
+              <stop offset="55%" stopColor="#FDE8D0" />
+              <stop offset="100%" stopColor="#FB923C" />
             </linearGradient>
           </defs>
         </svg>
@@ -243,13 +244,13 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
         <div className="relative z-10 space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
             <div className="space-y-1.5">
-              <p className="text-xs font-semibold tracking-wide text-[#DDD6FE]">
+              <p className="text-xs font-semibold tracking-wide text-[#FDE8D0]">
                 Argent encore disponible · {month.label}
               </p>
-              <p className="font-display font-mono-num text-3xl sm:text-5xl font-extrabold tracking-tight text-white drop-shadow-sm">
+              <p className="font-display font-mono-num text-3xl sm:text-5xl font-extrabold tracking-tight text-[#FAF3E8] drop-shadow-sm">
                 <AnimatedNumber value={month.salaire.argentEncoreDisponible} />
               </p>
-              <p className="text-xs text-[#DDEBD8]/95">
+              <p className="text-xs text-[#F5E6D3]/95">
                 {month.salaire.alimentee
                   ? `Solde budgétaire libre sur ${formatFCFA(month.salaire.montantActif)} actif · Référence ${formatFCFA(SALAIRE_REFERENCE)}`
                   : `En attente d’alimentation du salaire · Référence ${formatFCFA(SALAIRE_REFERENCE)}`}
@@ -259,7 +260,7 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
             {/* Animated Radial Balance Gauge */}
             <motion.div
               whileHover={{ scale: 1.03 }}
-              className="flex items-center gap-4 self-start sm:self-center bg-black/25 border border-white/25 rounded-2xl px-4 py-3.5 backdrop-blur-md shadow-inner"
+              className="flex items-center gap-4 self-start sm:self-center bg-black/28 border border-[#FAF3E8]/30 rounded-2xl px-4 py-3.5 backdrop-blur-md shadow-inner"
             >
               <div className="relative w-24 h-24 flex items-center justify-center shrink-0">
                 <svg className="w-24 h-24 -rotate-90" viewBox="0 0 96 96" aria-hidden="true">
@@ -268,7 +269,7 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                     cy="48"
                     r="40"
                     fill="none"
-                    stroke="rgba(221,214,254,0.25)"
+                    stroke="rgba(250,243,232,0.25)"
                     strokeWidth="8"
                   />
                   <motion.circle
@@ -276,7 +277,7 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                     cy="48"
                     r="40"
                     fill="none"
-                    stroke="url(#heroRingViolet)"
+                    stroke="url(#heroRingSunset)"
                     strokeWidth="8"
                     strokeLinecap="round"
                     strokeDasharray={ringCircumference}
@@ -285,23 +286,23 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                     transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
                   />
                   <defs>
-                    <linearGradient id="heroRingViolet" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#DDEBD8" />
-                      <stop offset="50%" stopColor="#FFFFFF" />
-                      <stop offset="100%" stopColor="#C4B5FD" />
+                    <linearGradient id="heroRingSunset" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#FAF3E8" />
+                      <stop offset="50%" stopColor="#FDE8D0" />
+                      <stop offset="100%" stopColor="#FB923C" />
                     </linearGradient>
                   </defs>
                 </svg>
-                <span className="absolute font-mono-num text-base font-extrabold text-white">
+                <span className="absolute font-mono-num text-base font-extrabold text-[#FAF3E8]">
                   {Math.round(availableRatio)}%
                 </span>
               </div>
               <div className="space-y-1 text-xs">
                 <p className="font-bold text-white">Reste disponible</p>
-                <p className="text-[#DDEBD8] font-mono-num">
+                <p className="text-[#FDE8D0] font-mono-num">
                   Engagé : {formatFCFA(totalEngage)}
                 </p>
-                <p className="text-[#DDD6FE] font-mono-num">
+                <p className="text-[#DDEBD8] font-mono-num">
                   Référence : {formatFCFA(SALAIRE_REFERENCE)}
                 </p>
               </div>
@@ -313,13 +314,13 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
             <motion.div
               whileHover={{ y: -3, scale: 1.01 }}
               transition={{ duration: 0.16 }}
-              className="rounded-2xl bg-white/14 border border-white/25 backdrop-blur-md p-4 shadow-sm"
+              className="rounded-2xl bg-white/14 border border-[#FAF3E8]/30 backdrop-blur-md p-4 shadow-sm"
             >
               <p className="text-[11px] font-medium text-[#DDEBD8]">Montant actif du mois</p>
               <p className="font-mono-num text-lg sm:text-xl font-bold text-white mt-0.5">
                 <AnimatedNumber value={month.salaire.montantActif} />
               </p>
-              <p className="text-[11px] text-[#DDEBD8]/85 mt-0.5">
+              <p className="text-[11px] text-[#F5E6D3]/85 mt-0.5">
                 Plafonné à {formatFCFA(SALAIRE_REFERENCE)}
               </p>
             </motion.div>
@@ -327,13 +328,13 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
             <motion.div
               whileHover={{ y: -3, scale: 1.01 }}
               transition={{ duration: 0.16 }}
-              className="rounded-2xl bg-white/14 border border-white/25 backdrop-blur-md p-4 shadow-sm"
+              className="rounded-2xl bg-white/14 border border-[#FDBA74]/40 backdrop-blur-md p-4 shadow-sm"
             >
-              <p className="text-[11px] font-medium text-[#DDD6FE]">Budget engagé</p>
+              <p className="text-[11px] font-medium text-[#FDE8D0]">Budget engagé</p>
               <p className="font-mono-num text-lg sm:text-xl font-bold text-white mt-0.5">
                 <AnimatedNumber value={totalEngage} />
               </p>
-              <p className="text-[11px] text-[#DDD6FE]/85 mt-0.5">
+              <p className="text-[11px] text-[#FDE8D0]/85 mt-0.5">
                 Fixes · Dépenses · Caisses
               </p>
             </motion.div>
@@ -341,13 +342,13 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
             <motion.div
               whileHover={{ y: -3, scale: 1.01 }}
               transition={{ duration: 0.16 }}
-              className="rounded-2xl bg-white/14 border border-white/25 backdrop-blur-md p-4 shadow-sm"
+              className="rounded-2xl bg-white/14 border border-[#FAF3E8]/30 backdrop-blur-md p-4 shadow-sm"
             >
-              <p className="text-[11px] font-medium text-[#DDD6FE]">Réserve Caisses + Surplus</p>
+              <p className="text-[11px] font-medium text-[#FAF3E8]">Réserve Caisses + Surplus</p>
               <p className="font-mono-num text-lg sm:text-xl font-bold text-white mt-0.5">
                 <AnimatedNumber value={totalCaissesEtSurplus} />
               </p>
-              <p className="text-[11px] text-[#DDEBD8]/90 mt-0.5">
+              <p className="text-[11px] text-[#F5E6D3]/90 mt-0.5">
                 Dont Surplus : {formatFCFA(month.caisses.surplus.soldeActuel)}
               </p>
             </motion.div>
@@ -373,9 +374,9 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
-            className="p-4 rounded-2xl border border-white/80 bg-white/95 backdrop-blur-xl text-[#075B2E] text-sm flex items-start gap-3 shadow-lg"
+            className="p-4 rounded-2xl border border-[#F5E6D3] bg-[#FDF8F0]/95 backdrop-blur-xl text-[#075B2E] text-sm flex items-start gap-3 shadow-lg"
           >
-            <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5 text-[#5B21B6]" />
+            <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5 text-[#EA580C]" />
             <span>{successMsg}</span>
           </motion.div>
         )}
@@ -386,12 +387,12 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-4 rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50/95 to-white/95 backdrop-blur-xl text-amber-950 text-sm flex items-start gap-3 shadow-[0_18px_40px_-14px_rgba(45,18,95,0.35)]"
+          className="p-4 rounded-2xl border border-[#FDBA74] bg-gradient-to-r from-[#FDF8F0]/95 via-[#FDE8D0]/85 to-[#FAF3E8]/95 backdrop-blur-xl text-[#7C2D12] text-sm flex items-start gap-3 shadow-[0_18px_40px_-14px_rgba(194,65,12,0.3)]"
         >
-          <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5 text-amber-700" />
+          <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5 text-[#EA580C]" />
           <div>
             <p className="font-semibold">Mois en attente d’alimentation du salaire</p>
-            <p className="text-xs mt-1 text-amber-800 leading-relaxed">
+            <p className="text-xs mt-1 text-[#9A3412] leading-relaxed">
               Tant que le salaire n’est pas alimenté, toutes les opérations du mois (fixes,
               dépenses, alimentation des caisses, paiement du loyer) sont bloquées.
             </p>
@@ -406,18 +407,18 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.36, delay: 0.06, ease: [0.16, 1, 0.3, 1] }}
-          className="lg:col-span-7 bg-white/94 backdrop-blur-2xl border border-white/85 rounded-3xl p-5 sm:p-6 shadow-[0_24px_60px_-16px_rgba(38,18,78,0.42)] space-y-5"
+          className="lg:col-span-7 bg-[#FDF8F0]/94 backdrop-blur-2xl border border-[#F5E6D3]/95 rounded-3xl p-5 sm:p-6 shadow-[0_24px_60px_-16px_rgba(4,40,20,0.42)] space-y-5"
         >
-          <div className="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-[#DDEBD8]">
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-[#EFE0CC]">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#075B2E] via-[#006B35] to-[#6D28D9] text-white flex items-center justify-center shadow-md shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#075B2E] via-[#006B35] to-[#EA580C] text-white flex items-center justify-center shadow-md shrink-0">
                 <Wallet className="w-5 h-5" />
               </div>
               <div>
                 <h2 className="font-display text-base sm:text-lg font-bold text-[#111111]">
                   Réception du salaire — {month.label}
                 </h2>
-                <p className="text-xs text-[#5B21B6] font-medium">
+                <p className="text-xs text-[#EA580C] font-semibold">
                   {month.salaire.alimentee ? 'Statut : ALIMENTÉ' : 'Statut : À ALIMENTER'}
                 </p>
               </div>
@@ -439,7 +440,7 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                     required
                     value={montantARecevoir}
                     onChange={(e) => setMontantARecevoir(e.target.value)}
-                    className="w-full min-h-[44px] px-3 py-2 text-sm font-mono-num bg-white border border-[#5B21B6]/20 rounded-xl focus:outline-none focus:border-[#6D28D9] focus:ring-2 focus:ring-[#7C3AED]/20"
+                    className="w-full min-h-[44px] px-3 py-2 text-sm font-mono-num bg-white border border-[#E7D4BD] rounded-xl focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
                   />
                 </div>
                 <div>
@@ -453,7 +454,7 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                     step={50}
                     value={bonus}
                     onChange={(e) => setBonus(e.target.value)}
-                    className="w-full min-h-[44px] px-3 py-2 text-sm font-mono-num bg-white border border-[#5B21B6]/20 rounded-xl focus:outline-none focus:border-[#6D28D9] focus:ring-2 focus:ring-[#7C3AED]/20"
+                    className="w-full min-h-[44px] px-3 py-2 text-sm font-mono-num bg-white border border-[#E7D4BD] rounded-xl focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
                   />
                 </div>
                 <div>
@@ -465,7 +466,7 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                     required
                     value={datePrevue}
                     onChange={(e) => setDatePrevue(e.target.value)}
-                    className="w-full min-h-[44px] px-3 py-2 text-sm font-mono-num bg-white border border-[#5B21B6]/20 rounded-xl focus:outline-none focus:border-[#6D28D9] focus:ring-2 focus:ring-[#7C3AED]/20"
+                    className="w-full min-h-[44px] px-3 py-2 text-sm font-mono-num bg-white border border-[#E7D4BD] rounded-xl focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
                   />
                 </div>
               </div>
@@ -485,13 +486,13 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                       ? 'Expliquez l’écart par rapport aux 155 000 F CFA...'
                       : 'Note ou précision sur la paie...'
                   }
-                  className="w-full min-h-[44px] px-3 py-2 text-sm bg-white border border-[#5B21B6]/20 rounded-xl focus:outline-none focus:border-[#6D28D9] focus:ring-2 focus:ring-[#7C3AED]/20"
+                  className="w-full min-h-[44px] px-3 py-2 text-sm bg-white border border-[#E7D4BD] rounded-xl focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
                 />
               </div>
 
               {/* Live visual split bar & simulation */}
-              <div className="bg-gradient-to-br from-[#DDEBD8]/65 via-white to-[#EDE9FE]/70 border border-[#5B21B6]/15 rounded-2xl p-4 space-y-3 text-xs">
-                <div className="h-2.5 bg-white rounded-full overflow-hidden flex border border-[#075B2E]/15">
+              <div className="bg-gradient-to-br from-[#FAF3E8] via-white to-[#FDE8D0]/55 border border-[#EFE0CC] rounded-2xl p-4 space-y-3 text-xs">
+                <div className="h-2.5 bg-white rounded-full overflow-hidden flex border border-[#E7D4BD]">
                   <motion.div
                     animate={{ width: `${previewActifPct}%` }}
                     transition={{ duration: 0.4 }}
@@ -501,7 +502,7 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                     <motion.div
                       animate={{ width: `${100 - previewActifPct}%` }}
                       transition={{ duration: 0.4 }}
-                      className="h-full bg-gradient-to-r from-[#7C3AED] to-[#A78BFA]"
+                      className="h-full bg-gradient-to-r from-[#EA580C] to-[#FB923C]"
                     />
                   )}
                 </div>
@@ -518,7 +519,7 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                   </span>
                 </div>
                 {previewExcedent > 0 && (
-                  <div className="flex justify-between gap-2 text-[#5B21B6] font-semibold">
+                  <div className="flex justify-between gap-2 text-[#C2410C] font-semibold">
                     <span>Excédent transféré automatiquement en Caisse Surplus</span>
                     <span className="font-mono-num">+{formatFCFA(previewExcedent)}</span>
                   </div>
@@ -540,7 +541,7 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                   whileTap={{ scale: 0.98 }}
                   type="submit"
                   disabled={busy || !hasUnsavedSalaryChanges}
-                  className="min-h-[44px] px-4 py-2.5 rounded-xl border border-[#5B21B6]/35 text-[#5B21B6] hover:bg-[#EDE9FE]/65 text-sm font-semibold transition-all disabled:opacity-50 cursor-pointer"
+                  className="min-h-[44px] px-4 py-2.5 rounded-xl border border-[#EA580C]/40 bg-white text-[#C2410C] hover:bg-[#FDE8D0]/60 text-sm font-semibold transition-all disabled:opacity-50 cursor-pointer"
                 >
                   Enregistrer la prévision
                 </motion.button>
@@ -552,13 +553,13 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                     type="button"
                     disabled={busy}
                     onClick={() => setConfirmFeed(true)}
-                    className="min-h-[46px] px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#075B2E] via-[#006B35] to-[#6D28D9] text-white text-sm font-bold shadow-[0_14px_30px_-8px_rgba(91,33,182,0.65)] transition-all disabled:opacity-50 cursor-pointer"
+                    className="min-h-[46px] px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#075B2E] via-[#006B35] to-[#EA580C] text-white text-sm font-bold shadow-[0_14px_30px_-8px_rgba(234,88,12,0.55)] transition-all disabled:opacity-50 cursor-pointer"
                   >
                     ALIMENTER
                   </motion.button>
                 ) : (
-                  <div className="flex flex-wrap items-center gap-2 bg-[#EDE9FE]/85 border border-[#5B21B6]/25 p-2 rounded-xl">
-                    <span className="text-xs font-semibold text-[#4C1D95] px-2">
+                  <div className="flex flex-wrap items-center gap-2 bg-[#FDE8D0]/85 border border-[#FB923C]/45 p-2 rounded-xl">
+                    <span className="text-xs font-semibold text-[#7C2D12] px-2">
                       Action irréversible :
                     </span>
                     <motion.button
@@ -566,7 +567,7 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                       type="button"
                       disabled={busy}
                       onClick={handleFeedSalary}
-                      className="min-h-[40px] px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-[#075B2E] to-[#5B21B6] text-white text-xs font-bold cursor-pointer"
+                      className="min-h-[40px] px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-[#075B2E] to-[#EA580C] text-white text-xs font-bold cursor-pointer"
                     >
                       Confirmer ALIMENTER
                     </motion.button>
@@ -575,7 +576,7 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                       type="button"
                       disabled={busy}
                       onClick={() => setConfirmFeed(false)}
-                      className="min-h-[40px] px-3 py-1.5 rounded-lg text-xs font-semibold text-[#111111] bg-white border border-[#DDEBD8] cursor-pointer"
+                      className="min-h-[40px] px-3 py-1.5 rounded-lg text-xs font-semibold text-[#111111] bg-white border border-[#EFE0CC] cursor-pointer"
                     >
                       Annuler
                     </motion.button>
@@ -586,27 +587,27 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
           ) : (
             <div className="space-y-4 text-sm">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div className="p-3.5 rounded-2xl bg-[#DDEBD8]/40 border border-[#DDEBD8]">
-                  <p className="text-xs text-[#111111]/60">Salaire prévu / reçu</p>
+                <div className="p-3.5 rounded-2xl bg-[#FAF3E8] border border-[#EFE0CC]">
+                  <p className="text-xs text-[#111111]/65">Salaire prévu / reçu</p>
                   <p className="font-mono-num font-bold text-[#111111] text-base mt-0.5">
                     {formatFCFA(month.salaire.montantARecevoir + month.salaire.bonus)}
                   </p>
                 </div>
-                <div className="p-3.5 rounded-2xl bg-gradient-to-br from-[#DDEBD8]/65 to-[#EDE9FE]/55 border border-[#5B21B6]/15">
-                  <p className="text-xs text-[#075B2E]/85">Montant actif</p>
+                <div className="p-3.5 rounded-2xl bg-gradient-to-br from-[#DDEBD8]/70 via-white to-[#FDE8D0]/65 border border-[#E7D4BD]">
+                  <p className="text-xs text-[#075B2E]">Montant actif</p>
                   <p className="font-mono-num font-bold text-[#075B2E] text-base mt-0.5">
                     {formatFCFA(month.salaire.montantActif)}
                   </p>
                 </div>
-                <div className="p-3.5 rounded-2xl bg-white border border-[#DDEBD8]">
-                  <p className="text-xs text-[#111111]/60">Bonus déclaré</p>
-                  <p className="font-mono-num font-semibold text-base mt-0.5">
+                <div className="p-3.5 rounded-2xl bg-white border border-[#EFE0CC]">
+                  <p className="text-xs text-[#111111]/65">Bonus déclaré</p>
+                  <p className="font-mono-num font-semibold text-[#EA580C] text-base mt-0.5">
                     {formatFCFA(month.salaire.bonus)}
                   </p>
                 </div>
-                <div className="p-3.5 rounded-2xl bg-white border border-[#EDE9FE]">
-                  <p className="text-xs text-[#111111]/60">Excédent vers Caisse Surplus</p>
-                  <p className="font-mono-num font-semibold text-[#6D28D9] text-base mt-0.5">
+                <div className="p-3.5 rounded-2xl bg-white border border-[#F5E6D3]">
+                  <p className="text-xs text-[#111111]/65">Excédent vers Caisse Surplus</p>
+                  <p className="font-mono-num font-semibold text-[#C2410C] text-base mt-0.5">
                     {formatFCFA(month.salaire.excedentTransfere)}
                   </p>
                 </div>
@@ -623,14 +624,14 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                 </div>
               )}
 
-              <div className="pt-3 border-t border-[#DDEBD8] text-xs text-[#111111]/70 flex flex-wrap justify-between gap-2">
+              <div className="pt-3 border-t border-[#EFE0CC] text-xs text-[#111111]/70 flex flex-wrap justify-between gap-2">
                 <span>Date prévue : {formatIsoDateFr(month.salaire.datePrevue)}</span>
                 {month.salaire.alimenteeLe && (
                   <span>Alimenté le : {month.salaire.alimenteeLe}</span>
                 )}
               </div>
               {month.salaire.motifModification && (
-                <p className="text-xs text-[#111111]/75 bg-[#EDE9FE]/45 px-3.5 py-2.5 rounded-xl">
+                <p className="text-xs text-[#111111]/75 bg-[#FDE8D0]/55 px-3.5 py-2.5 rounded-xl border border-[#F5E6D3]">
                   Motif : {month.salaire.motifModification}
                 </p>
               )}
@@ -643,10 +644,10 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.36, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
-          className="lg:col-span-5 bg-white/94 backdrop-blur-2xl border border-white/85 rounded-3xl p-5 sm:p-6 shadow-[0_24px_60px_-16px_rgba(38,18,78,0.42)] flex flex-col justify-between space-y-5"
+          className="lg:col-span-5 bg-[#FDF8F0]/94 backdrop-blur-2xl border border-[#F5E6D3]/95 rounded-3xl p-5 sm:p-6 shadow-[0_24px_60px_-16px_rgba(4,40,20,0.42)] flex flex-col justify-between space-y-5"
         >
           <div className="space-y-4">
-            <h2 className="font-display text-base sm:text-lg font-bold text-[#111111] pb-3 border-b border-[#DDEBD8]">
+            <h2 className="font-display text-base sm:text-lg font-bold text-[#111111] pb-3 border-b border-[#EFE0CC]">
               Architecture budgétaire (155 000 F CFA)
             </h2>
 
@@ -657,7 +658,7 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                   whileHover={{ x: 3 }}
                   type="button"
                   onClick={() => onNavigate('fixes')}
-                  className="font-semibold text-[#075B2E] hover:text-[#6D28D9] inline-flex items-center gap-1 cursor-pointer min-h-[36px]"
+                  className="font-semibold text-[#075B2E] hover:text-[#EA580C] inline-flex items-center gap-1 cursor-pointer min-h-[36px]"
                 >
                   <span>1. Fixes irréversibles</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -666,16 +667,16 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                   {formatFCFA(totalFixesValides)} / {formatFCFA(TOTAL_FIXES_BUDGET)}
                 </span>
               </div>
-              <div className="h-3 bg-[#DDEBD8]/75 rounded-full overflow-hidden p-0.5">
+              <div className="h-3 bg-[#EFE0CC]/80 rounded-full overflow-hidden p-0.5">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{
                     width: `${Math.min(100, (totalFixesValides / TOTAL_FIXES_BUDGET) * 100)}%`,
                   }}
                   transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                  className="relative h-full rounded-full bg-gradient-to-r from-[#075B2E] via-[#006B35] to-[#7C3AED] overflow-hidden"
+                  className="relative h-full rounded-full bg-gradient-to-r from-[#075B2E] via-[#006B35] to-[#EA580C] overflow-hidden"
                 >
-                  <span className="absolute inset-y-0 w-14 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-progress-glint" />
+                  <span className="absolute inset-y-0 w-14 bg-gradient-to-r from-transparent via-white/45 to-transparent animate-progress-glint" />
                 </motion.div>
               </div>
             </div>
@@ -687,7 +688,7 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                   whileHover={{ x: 3 }}
                   type="button"
                   onClick={() => onNavigate('depenses')}
-                  className="font-semibold text-[#075B2E] hover:text-[#6D28D9] inline-flex items-center gap-1 cursor-pointer min-h-[36px]"
+                  className="font-semibold text-[#C2410C] hover:text-[#075B2E] inline-flex items-center gap-1 cursor-pointer min-h-[36px]"
                 >
                   <span>2. Dépenses petit à petit</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -696,7 +697,7 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                   {formatFCFA(totalDepenses + totalRestesSurplus)} / {formatFCFA(TOTAL_DEPENSES_BUDGET)}
                 </span>
               </div>
-              <div className="h-3 bg-[#DDEBD8]/75 rounded-full overflow-hidden p-0.5">
+              <div className="h-3 bg-[#EFE0CC]/80 rounded-full overflow-hidden p-0.5">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{
@@ -706,9 +707,9 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                     )}%`,
                   }}
                   transition={{ duration: 0.7, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-                  className="relative h-full rounded-full bg-gradient-to-r from-[#006B35] via-[#4C1D95] to-[#7C3AED] overflow-hidden"
+                  className="relative h-full rounded-full bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#006B35] overflow-hidden"
                 >
-                  <span className="absolute inset-y-0 w-14 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-progress-glint" />
+                  <span className="absolute inset-y-0 w-14 bg-gradient-to-r from-transparent via-white/45 to-transparent animate-progress-glint" />
                 </motion.div>
               </div>
             </div>
@@ -720,7 +721,7 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                   whileHover={{ x: 3 }}
                   type="button"
                   onClick={() => onNavigate('caisses')}
-                  className="font-semibold text-[#075B2E] hover:text-[#6D28D9] inline-flex items-center gap-1 cursor-pointer min-h-[36px]"
+                  className="font-semibold text-[#075B2E] hover:text-[#EA580C] inline-flex items-center gap-1 cursor-pointer min-h-[36px]"
                 >
                   <span>3. Dotations Caisses</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -729,42 +730,42 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                   {formatFCFA(totalDotationsCaisses)} / {formatFCFA(TOTAL_CAISSES_DOTATION)}
                 </span>
               </div>
-              <div className="h-3 bg-[#DDEBD8]/75 rounded-full overflow-hidden p-0.5">
+              <div className="h-3 bg-[#EFE0CC]/80 rounded-full overflow-hidden p-0.5">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{
                     width: `${Math.min(100, (totalDotationsCaisses / TOTAL_CAISSES_DOTATION) * 100)}%`,
                   }}
                   transition={{ duration: 0.7, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
-                  className="relative h-full rounded-full bg-gradient-to-r from-[#075B2E] via-[#006B35] to-[#7C3AED] overflow-hidden"
+                  className="relative h-full rounded-full bg-gradient-to-r from-[#075B2E] via-[#F97316] to-[#FB923C] overflow-hidden"
                 >
-                  <span className="absolute inset-y-0 w-14 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-progress-glint" />
+                  <span className="absolute inset-y-0 w-14 bg-gradient-to-r from-transparent via-white/45 to-transparent animate-progress-glint" />
                 </motion.div>
               </div>
             </div>
 
             {/* Loyer hors budget */}
-            <div className="pt-3 border-t border-[#DDEBD8] flex items-center justify-between gap-3 text-sm">
+            <div className="pt-3 border-t border-[#EFE0CC] flex items-center justify-between gap-3 text-sm">
               <div>
                 <motion.button
                   whileHover={{ x: 3 }}
                   type="button"
                   onClick={() => onNavigate('loyer')}
-                  className="font-semibold text-[#111111] hover:text-[#6D28D9] inline-flex items-center gap-1 cursor-pointer min-h-[36px]"
+                  className="font-semibold text-[#111111] hover:text-[#EA580C] inline-flex items-center gap-1 cursor-pointer min-h-[36px]"
                 >
                   <span>Coffre Loyer (hors budget)</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </motion.button>
-                <p className="text-xs text-[#5B21B6] font-medium">{rentStatus.badgeLabel}</p>
+                <p className="text-xs text-[#C2410C] font-medium">{rentStatus.badgeLabel}</p>
               </div>
-              <span className="font-mono-num font-bold text-[#075B2E] whitespace-nowrap">
+              <span className="font-mono-num font-bold text-[#EA580C] whitespace-nowrap">
                 {formatFCFA(month.loyer.montant)}
               </span>
             </div>
           </div>
 
           {/* Month closure section */}
-          <div className="pt-4 border-t border-[#DDEBD8]">
+          <div className="pt-4 border-t border-[#EFE0CC]">
             {month.statut === 'OUVERT' ? (
               !confirmCloseMonth ? (
                 <motion.button
@@ -773,13 +774,13 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                   type="button"
                   disabled={busy}
                   onClick={() => setConfirmCloseMonth(true)}
-                  className="w-full min-h-[46px] py-2.5 px-4 rounded-xl border border-[#5B21B6]/35 bg-gradient-to-r from-[#DDEBD8]/45 to-[#EDE9FE]/55 text-[#4C1D95] hover:from-[#075B2E] hover:to-[#6D28D9] hover:text-white text-sm font-semibold flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer"
+                  className="w-full min-h-[46px] py-2.5 px-4 rounded-xl border border-[#EA580C]/35 bg-gradient-to-r from-[#FAF3E8] via-[#FDE8D0]/65 to-[#DDEBD8]/65 text-[#075B2E] hover:from-[#075B2E] hover:via-[#006B35] hover:to-[#EA580C] hover:text-white text-sm font-semibold flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer"
                 >
                   <Lock className="w-4 h-4" />
                   <span>Clôturer définitivement {month.label}</span>
                 </motion.button>
               ) : (
-                <div className="p-4 rounded-2xl bg-[#EDE9FE]/65 border border-[#5B21B6]/25 space-y-3">
+                <div className="p-4 rounded-2xl bg-[#FDE8D0]/70 border border-[#FB923C]/40 space-y-3">
                   <p className="text-xs text-[#111111] leading-relaxed">
                     La clôture rendra <strong>{month.label}</strong> strictement en lecture seule
                     {nextMonth
@@ -792,7 +793,7 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                       type="button"
                       disabled={busy}
                       onClick={handleCloseMonth}
-                      className="flex-1 min-h-[42px] py-2 px-3 rounded-xl bg-gradient-to-r from-[#075B2E] to-[#6D28D9] text-white text-xs font-bold cursor-pointer"
+                      className="flex-1 min-h-[42px] py-2 px-3 rounded-xl bg-gradient-to-r from-[#075B2E] to-[#EA580C] text-white text-xs font-bold cursor-pointer"
                     >
                       Confirmer la clôture
                     </motion.button>
@@ -801,7 +802,7 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                       type="button"
                       disabled={busy}
                       onClick={() => setConfirmCloseMonth(false)}
-                      className="min-h-[42px] py-2 px-3.5 rounded-xl bg-white border border-[#DDEBD8] text-xs font-semibold text-[#111111] cursor-pointer"
+                      className="min-h-[42px] py-2 px-3.5 rounded-xl bg-white border border-[#EFE0CC] text-xs font-semibold text-[#111111] cursor-pointer"
                     >
                       Annuler
                     </motion.button>
@@ -809,8 +810,8 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                 </div>
               )
             ) : (
-              <div className="p-3.5 rounded-2xl bg-[#EDE9FE]/50 text-xs text-[#4C1D95] font-medium flex items-center gap-2">
-                <Lock className="w-4 h-4 shrink-0" />
+              <div className="p-3.5 rounded-2xl bg-[#FAF3E8] border border-[#EFE0CC] text-xs text-[#075B2E] font-medium flex items-center gap-2">
+                <Lock className="w-4 h-4 shrink-0 text-[#EA580C]" />
                 <span>
                   {month.statut === 'CLOTURE'
                     ? `Mois clôturé le ${month.clotureLe || '—'} (lecture seule).`

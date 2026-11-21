@@ -17,6 +17,7 @@ import {
 } from './types/budget';
 import { Navbar } from './components/Navbar';
 import { PdfModal } from './components/PdfModal';
+import { OfflineIndicator } from './components/OfflineIndicator';
 import { AccueilView } from './components/views/AccueilView';
 import { LoyerView } from './components/views/LoyerView';
 import { FixesView } from './components/views/FixesView';
@@ -32,12 +33,14 @@ function sortHistoryDesc(a: HistoryEntry, b: HistoryEntry): number {
 }
 
 const FLOATING_MOTES = [
-  { id: 1, left: '8%', top: '20%', size: 16, duration: 7.5, delay: 0, color: 'bg-[#DDEBD8]/35' },
-  { id: 2, left: '22%', top: '70%', size: 12, duration: 9, delay: 1.2, color: 'bg-[#DDD6FE]/45' },
-  { id: 3, left: '46%', top: '30%', size: 20, duration: 8.5, delay: 0.6, color: 'bg-white/25' },
-  { id: 4, left: '72%', top: '74%', size: 14, duration: 10, delay: 2.1, color: 'bg-[#C4B5FD]/40' },
-  { id: 5, left: '86%', top: '24%', size: 18, duration: 8, delay: 1.5, color: 'bg-[#DDEBD8]/35' },
-  { id: 6, left: '62%', top: '52%', size: 11, duration: 9.5, delay: 0.4, color: 'bg-white/30' },
+  { id: 1, left: '7%', top: '18%', size: 18, duration: 7.2, delay: 0, color: 'bg-[#FAF3E8]/42' },
+  { id: 2, left: '20%', top: '72%', size: 14, duration: 8.8, delay: 1.1, color: 'bg-[#FB923C]/48' },
+  { id: 3, left: '42%', top: '26%', size: 22, duration: 8.2, delay: 0.5, color: 'bg-[#DDEBD8]/40' },
+  { id: 4, left: '66%', top: '76%', size: 16, duration: 9.6, delay: 1.9, color: 'bg-[#FDE8D0]/48' },
+  { id: 5, left: '84%', top: '22%', size: 20, duration: 7.8, delay: 1.4, color: 'bg-[#F97316]/44' },
+  { id: 6, left: '56%', top: '48%', size: 12, duration: 9.2, delay: 0.3, color: 'bg-[#DDEBD8]/42' },
+  { id: 7, left: '91%', top: '62%', size: 15, duration: 8.4, delay: 2.2, color: 'bg-[#FDBA74]/45' },
+  { id: 8, left: '14%', top: '44%', size: 12, duration: 10.2, delay: 0.9, color: 'bg-[#FAF3E8]/38' },
 ];
 
 export default function App() {
@@ -182,21 +185,21 @@ export default function App() {
           className="fixed inset-0 -z-10 pointer-events-none"
           style={{
             background:
-              'linear-gradient(135deg, #075B2E 0%, #006B35 35%, #4C1D95 75%, #7C3AED 100%)',
+              'linear-gradient(135deg, #04361B 0%, #075B2E 28%, #006B35 50%, #C2410C 80%, #EA580C 100%)',
           }}
         />
-        <div className="h-14 bg-[#053B20]/80 backdrop-blur-md border-b border-white/15" />
+        <div className="h-14 bg-[#053B20]/75 backdrop-blur-md border-b border-white/15" />
         <div className="flex-1 flex items-center justify-center p-6">
           <motion.div
             initial={{ opacity: 0, scale: 0.92, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
-            className="bg-white/95 backdrop-blur-2xl border border-white/90 shadow-[0_28px_70px_-18px_rgba(45,18,95,0.55)] rounded-3xl p-8 max-w-md w-full text-center space-y-4"
+            className="bg-[#FDF8F0]/95 backdrop-blur-2xl border border-[#F5E6D3] shadow-[0_28px_70px_-18px_rgba(4,40,20,0.58)] rounded-3xl p-8 max-w-md w-full text-center space-y-4"
           >
             <motion.div
-              animate={{ scale: [1, 1.08, 1], rotate: [0, 3, -3, 0] }}
-              transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
-              className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-[#075B2E] via-[#006B35] to-[#6D28D9] flex items-center justify-center text-white font-display font-extrabold text-2xl shadow-lg"
+              animate={{ scale: [1, 1.08, 1], rotate: [0, 4, -4, 0] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+              className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-[#075B2E] via-[#006B35] to-[#EA580C] flex items-center justify-center text-[#FAF3E8] font-display font-extrabold text-2xl shadow-lg"
             >
               B
             </motion.div>
@@ -215,43 +218,51 @@ export default function App() {
   return (
     <MotionConfig reducedMotion="user">
       <div className="min-h-screen relative text-[#111111] flex flex-col pb-24 md:pb-12">
-        {/* Vibrant Emerald + Violet living aurora gradient backdrop */}
+        {/* Vibrant Emerald + Warm Orange + Warm Beige living aurora backdrop (no violet) */}
         <div
           aria-hidden="true"
           className="fixed inset-0 -z-10 overflow-hidden pointer-events-none"
         >
           <div
-            className="absolute inset-0"
+            className="absolute -inset-12 animate-bg-shift"
             style={{
               background:
-                'linear-gradient(135deg, #053E1F 0%, #075B2E 28%, #006B35 48%, #4C1D95 76%, #7C3AED 100%)',
+                'linear-gradient(135deg, #04361B 0%, #075B2E 28%, #006B35 50%, #C2410C 80%, #EA580C 100%)',
             }}
           />
-          {/* Mint & Emerald Aurora Glow */}
+          {/* Mint & Warm Beige Aurora */}
           <div
-            className="absolute -top-36 -left-32 w-[480px] h-[480px] sm:w-[760px] sm:h-[760px] rounded-full animate-aurora-a"
+            className="absolute -top-36 -left-32 w-[480px] h-[480px] sm:w-[780px] sm:h-[780px] rounded-full animate-aurora-a"
             style={{
               background:
-                'radial-gradient(circle, rgba(221,235,216,0.52) 0%, rgba(0,107,53,0.45) 45%, rgba(7,91,46,0) 74%)',
+                'radial-gradient(circle, rgba(250,243,232,0.54) 0%, rgba(0,107,53,0.46) 45%, rgba(7,91,46,0) 74%)',
             }}
           />
-          {/* Rich Violet Aurora Glow */}
+          {/* Sunset Orange Aurora */}
           <div
-            className="absolute top-[14%] -right-36 w-[480px] h-[480px] sm:w-[780px] sm:h-[780px] rounded-full animate-aurora-b"
+            className="absolute top-[6%] -right-32 w-[460px] h-[460px] sm:w-[740px] sm:h-[740px] rounded-full animate-aurora-b"
             style={{
               background:
-                'radial-gradient(circle, rgba(167,139,250,0.62) 0%, rgba(124,58,237,0.48) 42%, rgba(76,29,149,0) 74%)',
+                'radial-gradient(circle, rgba(251,146,60,0.65) 0%, rgba(234,88,12,0.48) 44%, rgba(194,65,12,0) 74%)',
             }}
           />
-          {/* Mint-to-Lavender Sweep */}
+          {/* Warm Beige + Soft Amber Sweep */}
           <div
-            className="absolute -bottom-44 left-[14%] w-[520px] h-[520px] sm:w-[840px] sm:h-[840px] rounded-full animate-aurora-wave"
+            className="absolute -bottom-44 left-[12%] w-[540px] h-[540px] sm:w-[860px] sm:h-[860px] rounded-full animate-aurora-wave"
             style={{
               background:
-                'radial-gradient(circle, rgba(221,235,216,0.48) 0%, rgba(139,92,246,0.38) 48%, rgba(76,29,149,0) 75%)',
+                'radial-gradient(circle, rgba(245,230,211,0.56) 0%, rgba(249,115,22,0.42) 48%, rgba(7,91,46,0) 76%)',
             }}
           />
-          {/* Floating light motes */}
+          {/* Emerald & Tangerine Halo */}
+          <div
+            className="absolute bottom-[-18%] right-[-10%] w-[420px] h-[420px] sm:w-[680px] sm:h-[680px] rounded-full animate-aurora-a"
+            style={{
+              background:
+                'radial-gradient(circle, rgba(221,235,216,0.46) 0%, rgba(234,88,12,0.34) 48%, rgba(5,68,34,0) 74%)',
+            }}
+          />
+          {/* Floating beige, orange & mint motes */}
           {FLOATING_MOTES.map((mote) => (
             <motion.span
               key={mote.id}
@@ -263,9 +274,9 @@ export default function App() {
                 height: mote.size,
               }}
               animate={{
-                y: [-18, 20, -18],
-                x: [-10, 12, -10],
-                opacity: [0.28, 0.68, 0.28],
+                y: [-20, 22, -20],
+                x: [-12, 14, -12],
+                opacity: [0.28, 0.72, 0.28],
               }}
               transition={{
                 duration: mote.duration,
@@ -283,16 +294,16 @@ export default function App() {
           onOpenPdf={() => setPdfOpen(true)}
         />
 
-        {/* Frosted glass context bar */}
-        <div className="bg-[#062E22]/45 backdrop-blur-xl border-b border-white/15 text-white shadow-[0_8px_28px_-12px_rgba(32,12,72,0.5)]">
+        {/* Frosted warm-forest glass context bar */}
+        <div className="bg-[#082B19]/52 backdrop-blur-xl border-b border-[#F5E6D3]/20 text-white shadow-[0_10px_30px_-12px_rgba(4,40,20,0.48)]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2.5 sm:gap-3">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-              <span className="inline-flex items-center gap-1.5 font-semibold text-[#DDEBD8]">
-                <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+              <span className="inline-flex items-center gap-1.5 font-semibold text-[#FDE8D0]">
+                <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-[#FB923C]" />
                 <span>{formatDateDuJour()}</span>
               </span>
-              <span className="text-white/30 hidden sm:inline">·</span>
-              <span className="text-white/95 font-medium">
+              <span className="text-[#FAF3E8]/35 hidden sm:inline">·</span>
+              <span className="text-[#FAF3E8]/95 font-medium">
                 Cycle : <strong className="text-white">{activeMonth.label}</strong> ({activeMonth.cycleLabel})
               </span>
             </div>
@@ -300,7 +311,7 @@ export default function App() {
             <div className="flex items-center justify-between sm:justify-start gap-2">
               <label
                 htmlFor="month-select"
-                className="text-xs font-semibold text-[#DDD6FE] whitespace-nowrap hidden sm:inline"
+                className="text-xs font-semibold text-[#F5E6D3] whitespace-nowrap hidden sm:inline"
               >
                 Mois 2027 :
               </label>
@@ -308,7 +319,7 @@ export default function App() {
                 id="month-select"
                 value={activeMonth.moisId}
                 onChange={(e) => setSelectedMoisId(e.target.value)}
-                className="flex-1 sm:flex-initial min-h-[40px] sm:min-h-[36px] px-3 py-1.5 text-xs font-semibold bg-white/95 border border-white/70 rounded-xl text-[#111111] shadow-md focus:outline-none focus:ring-2 focus:ring-[#C4B5FD] cursor-pointer"
+                className="flex-1 sm:flex-initial min-h-[40px] sm:min-h-[36px] px-3 py-1.5 text-xs font-semibold bg-[#FDF8F0] border border-[#F5E6D3] rounded-xl text-[#111111] shadow-md focus:outline-none focus:ring-2 focus:ring-[#FB923C] cursor-pointer"
               >
                 {months.map((m) => (
                   <option key={m.moisId} value={m.moisId}>
@@ -319,14 +330,14 @@ export default function App() {
               <span
                 className={`inline-flex items-center gap-1.5 min-h-[40px] sm:min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shrink-0 shadow-md ${
                   activeMonth.statut === 'OUVERT'
-                    ? 'bg-gradient-to-r from-[#DDEBD8] via-white to-[#DDD6FE] text-[#075B2E]'
+                    ? 'bg-gradient-to-r from-[#FAF3E8] via-[#FDE8D0] to-[#DDEBD8] text-[#075B2E]'
                     : activeMonth.statut === 'CLOTURE'
-                      ? 'bg-[#4C1D95] text-white border border-white/25'
+                      ? 'bg-gradient-to-r from-[#075B2E] to-[#C2410C] text-white border border-white/25'
                       : 'bg-white/20 text-white border border-white/25'
                 }`}
               >
                 {activeMonth.statut === 'OUVERT' ? (
-                  <Unlock className="w-3.5 h-3.5" />
+                  <Unlock className="w-3.5 h-3.5 text-[#EA580C]" />
                 ) : (
                   <Lock className="w-3.5 h-3.5" />
                 )}
@@ -342,9 +353,9 @@ export default function App() {
             <motion.div
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-5 p-4 rounded-2xl bg-white/94 backdrop-blur-2xl border border-white/85 shadow-[0_18px_40px_-14px_rgba(32,12,72,0.45)] text-sm text-[#075B2E] flex items-center gap-3"
+              className="mb-5 p-4 rounded-2xl bg-[#FDF8F0]/95 backdrop-blur-2xl border border-[#F5E6D3] shadow-[0_18px_40px_-14px_rgba(4,40,20,0.42)] text-sm text-[#075B2E] flex items-center gap-3"
             >
-              <Lock className="w-4 h-4 shrink-0 text-[#6D28D9]" />
+              <Lock className="w-4 h-4 shrink-0 text-[#EA580C]" />
               <span>
                 <strong>{activeMonth.label}</strong> est actuellement verrouillé. Clôturez le mois
                 précédent pour l’ouvrir et débloquer ses opérations.
@@ -356,9 +367,9 @@ export default function App() {
             <motion.div
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-5 p-4 rounded-2xl bg-white/94 backdrop-blur-2xl border border-white/85 shadow-[0_18px_40px_-14px_rgba(32,12,72,0.45)] text-sm text-[#4C1D95] flex items-center gap-3"
+              className="mb-5 p-4 rounded-2xl bg-[#FDF8F0]/95 backdrop-blur-2xl border border-[#F5E6D3] shadow-[0_18px_40px_-14px_rgba(4,40,20,0.42)] text-sm text-[#C2410C] flex items-center gap-3"
             >
-              <Lock className="w-4 h-4 shrink-0" />
+              <Lock className="w-4 h-4 shrink-0 text-[#EA580C]" />
               <span>
                 <strong>{activeMonth.label}</strong> est clôturé définitivement (lecture seule).
               </span>
@@ -401,6 +412,8 @@ export default function App() {
           expenses={expenses}
           history={history}
         />
+
+        <OfflineIndicator />
       </div>
     </MotionConfig>
   );

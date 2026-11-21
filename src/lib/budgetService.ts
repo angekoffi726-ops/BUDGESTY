@@ -1,9 +1,11 @@
-import { User } from 'firebase/auth';
 import {
   collection,
   doc,
   getDoc,
+  getDocs,
+  query,
   serverTimestamp,
+  where,
   writeBatch,
 } from 'firebase/firestore';
 import {
@@ -27,14 +29,12 @@ import {
 import { db, handleFirestoreError, OperationType } from './firebase';
 import { getNowTimeString, getTodayIsoDate, sanitizeStr } from './format';
 import {
-  appendLocalExpense,
-  appendLocalHistory,
   ensureLocalMonthsInitialized,
   getLocalExpenses,
   getLocalHistory,
-  LOCAL_USER_ID,
-  saveLocalMonths,
 } from './localStore';
+
+export const WORKSPACE_ID = 'budgesty_2027_principal';
 
 function makeSafeDocId(prefix: string): string {
   const rand = Math.random().toString(36).slice(2, 9);
@@ -197,85 +197,152 @@ function addHistoryToBatch(
   });
 }
 
-function updateLocalMonth(moisId: string, updater: (m: BudgetMonth) => BudgetMonth): BudgetMonth[] {
-  const months = ensureLocalMonthsInitialized();
-  const next = months.map((m) => (m.moisId === moisId ? updater(m) : m));
-  saveLocalMonths(next);
-  return next;
-}
-
-export async function bootstrapUserBudget(user: User): Promise<void> {
-  const userPath = `users/${user.uid}`;
+export async function bootstrapWorkspaceBudget(): Promise<void> {
+  let activePath = `users/${WORKSPACE_ID}`;
   try {
-    const userRef = doc(db, 'users', user.uid);
+    const userRef = doc(db, 'users', WORKSPACE_ID);
     const snap = await getDoc(userRef);
-    const janRef = doc(db, 'users', user.uid, 'mois', '2027-01');
-    const janSnap = await getDoc(janRef);
 
-    if (snap.exists() && janSnap.exists()) {
+    const moisQuery = query(
+      collection(db, 'users', WORKSPACE_ID, 'mois'),
+      where('userId', '==', WORKSPACE_ID)
+    );
+    const moisSnap = await getDocs(moisQuery);
+    const existingMoisIds = new Set(moisSnap.docs.map((d) => d.id));
+
+    if (snap.exists() && existingMoisIds.size >= MONTHS_2027.length) {
       return;
     }
 
-    const batch = writeBatch(db);
-    const safeEmail = sanitizeStr(user.email || 'utilisateur@budgesty.app', 160);
-    const rawName = user.displayName || safeEmail.split('@')[0] || 'Utilisateur';
-    const safeName = sanitizeStr(rawName, 80) || 'Utilisateur';
-
     if (!snap.exists()) {
-      batch.set(userRef, {
-        userId: user.uid,
-        email: safeEmail,
-        displayName: safeName,
+      activePath = `users/${WORKSPACE_ID}`;
+      const userBatch = writeBatch(db);
+      userBatch.set(userRef, {
+        userId: WORKSPACE_ID,
+        email: 'budget@budgesty.app',
+        displayName: 'BUDGESTY 2027',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
+      await userBatch.commit();
     }
 
-    if (!janSnap.exists()) {
-      const localMonths = ensureLocalMonthsInitialized();
-      const localHistory = getLocalHistory();
-      const hasLocalActivity = localHistory.length > 0;
+    const missingDefs = MONTHS_2027.filter((def) => !existingMoisIds.has(def.moisId));
+    if (missingDefs.length === 0) {
+      return;
+    }
 
-      if (hasLocalActivity) {
-        for (const lm of localMonths) {
-          const moisRef = doc(db, 'users', user.uid, 'mois', lm.moisId);
-          batch.set(moisRef, {
-            ...lm,
-            userId: user.uid,
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
-          });
+    const localHistory = existingMoisIds.size === 0 ? getLocalHistory() : [];
+    const hasLocalActivity = localHistory.length > 0;
+
+    if (hasLocalActivity) {
+      try {
+        const localMonths = ensureLocalMonthsInitialized();
+        const openSalaryFedMonths = new Set(
+          localMonths
+            .filter((m) => m.statut === 'OUVERT' && m.salaire.alimentee)
+            .map((m) => m.moisId)
+        );
+
+        activePath = `users/${WORKSPACE_ID}/mois`;
+        for (let i = 0; i < localMonths.length; i += 3) {
+          const chunk = localMonths.slice(i, i + 3);
+          const monthsBatch = writeBatch(db);
+          for (const lm of chunk) {
+            if (!existingMoisIds.has(lm.moisId)) {
+              const moisRef = doc(db, 'users', WORKSPACE_ID, 'mois', lm.moisId);
+              monthsBatch.set(moisRef, {
+                ...lm,
+                userId: WORKSPACE_ID,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+              });
+            }
+          }
+          await monthsBatch.commit();
         }
-        const localExpenses = getLocalExpenses().slice(0, 100);
-        for (const exp of localExpenses) {
-          const depRef = doc(db, 'users', user.uid, 'mois', exp.moisId, 'depenses', exp.id);
-          const { id: _id, ...payload } = exp;
-          batch.set(depRef, {
-            ...payload,
-            userId: user.uid,
-            createdAt: serverTimestamp(),
-          });
+
+        const localExpenses = getLocalExpenses()
+          .filter((exp) => openSalaryFedMonths.has(exp.moisId))
+          .slice(0, 100);
+        for (let i = 0; i < localExpenses.length; i += 15) {
+          const chunk = localExpenses.slice(i, i + 15);
+          const expBatch = writeBatch(db);
+          for (const exp of chunk) {
+            activePath = `users/${WORKSPACE_ID}/mois/${exp.moisId}/depenses/${exp.id}`;
+            const depRef = doc(
+              db,
+              'users',
+              WORKSPACE_ID,
+              'mois',
+              exp.moisId,
+              'depenses',
+              exp.id
+            );
+            const { id: _id, ...payload } = exp;
+            expBatch.set(depRef, {
+              ...payload,
+              userId: WORKSPACE_ID,
+              createdAt: serverTimestamp(),
+            });
+          }
+          await expBatch.commit();
         }
-        for (const h of localHistory.slice(0, 200)) {
-          const histRef = doc(db, 'users', user.uid, 'historique', h.id);
-          const { id: _id, ...payload } = h;
-          batch.set(histRef, {
-            ...payload,
-            userId: user.uid,
-            createdAt: serverTimestamp(),
-          });
+
+        const histList = localHistory.slice(0, 200);
+        activePath = `users/${WORKSPACE_ID}/historique`;
+        for (let i = 0; i < histList.length; i += 50) {
+          const chunk = histList.slice(i, i + 50);
+          const histBatch = writeBatch(db);
+          for (const h of chunk) {
+            const histRef = doc(db, 'users', WORKSPACE_ID, 'historique', h.id);
+            const { id: _id, ...payload } = h;
+            histBatch.set(histRef, {
+              ...payload,
+              userId: WORKSPACE_ID,
+              createdAt: serverTimestamp(),
+            });
+          }
+          await histBatch.commit();
         }
-      } else {
-        for (const def of MONTHS_2027) {
-          const moisRef = doc(db, 'users', user.uid, 'mois', def.moisId);
-          batch.set(moisRef, buildInitialMonthDoc(user.uid, def));
+
+        try {
+          localStorage.removeItem('budgesty_local_months_v1');
+          localStorage.removeItem('budgesty_local_expenses_v1');
+          localStorage.removeItem('budgesty_local_history_v1');
+        } catch {
+          // ignore localStorage cleanup errors
+        }
+        return;
+      } catch (migErr) {
+        console.warn('Migration locale ignorée, initialisation directe Firestore:', migErr);
+        try {
+          localStorage.removeItem('budgesty_local_months_v1');
+          localStorage.removeItem('budgesty_local_expenses_v1');
+          localStorage.removeItem('budgesty_local_history_v1');
+        } catch {
+          // ignore
         }
       }
     }
 
-    await batch.commit();
+    // Re-check missing months in case partial migration wrote some
+    const afterMigSnap = await getDocs(moisQuery);
+    const afterExisting = new Set(afterMigSnap.docs.map((d) => d.id));
+    const remainingDefs = MONTHS_2027.filter((def) => !afterExisting.has(def.moisId));
+
+    activePath = `users/${WORKSPACE_ID}/mois`;
+    for (let i = 0; i < remainingDefs.length; i += 3) {
+      const chunk = remainingDefs.slice(i, i + 3);
+      const monthsBatch = writeBatch(db);
+      for (const def of chunk) {
+        const moisRef = doc(db, 'users', WORKSPACE_ID, 'mois', def.moisId);
+        monthsBatch.set(moisRef, buildInitialMonthDoc(WORKSPACE_ID, def));
+      }
+      await monthsBatch.commit();
+    }
   } catch (error) {
-    handleFirestoreError(error, OperationType.WRITE, userPath);
+    handleFirestoreError(error, OperationType.WRITE, activePath);
   }
 }
 
@@ -316,12 +383,6 @@ export async function updateSalaryPreview(
     soldeAvant: month.salaire.montantARecevoir + month.salaire.bonus,
     soldeApres: totalPrevu,
   };
-
-  if (userId === LOCAL_USER_ID) {
-    updateLocalMonth(month.moisId, (m) => ({ ...m, salaire: nextSalaire }));
-    appendLocalHistory([buildHistoryRecord(userId, month, histParams)]);
-    return;
-  }
 
   const moisPath = `users/${userId}/mois/${month.moisId}`;
   try {
@@ -399,16 +460,6 @@ export async function feedSalary(userId: string, month: BudgetMonth): Promise<vo
     });
   }
 
-  if (userId === LOCAL_USER_ID) {
-    updateLocalMonth(month.moisId, (m) => ({
-      ...m,
-      salaire: nextSalaire,
-      caisses: nextCaisses,
-    }));
-    appendLocalHistory(histEntries.map((p) => buildHistoryRecord(userId, month, p)));
-    return;
-  }
-
   const moisPath = `users/${userId}/mois/${month.moisId}`;
   try {
     const batch = writeBatch(db);
@@ -446,12 +497,6 @@ export async function payRent(userId: string, month: BudgetMonth): Promise<void>
     soldeAvant: month.salaire.argentEncoreDisponible,
     soldeApres: month.salaire.argentEncoreDisponible,
   };
-
-  if (userId === LOCAL_USER_ID) {
-    updateLocalMonth(month.moisId, (m) => ({ ...m, loyer: nextLoyer }));
-    appendLocalHistory([buildHistoryRecord(userId, month, histParams)]);
-    return;
-  }
 
   const moisPath = `users/${userId}/mois/${month.moisId}`;
   try {
@@ -494,16 +539,6 @@ export async function validateFixe(
     soldeAvant,
     soldeApres,
   };
-
-  if (userId === LOCAL_USER_ID) {
-    updateLocalMonth(month.moisId, (m) => ({
-      ...m,
-      salaire: nextSalaire,
-      fixes: nextFixes,
-    }));
-    appendLocalHistory([buildHistoryRecord(userId, month, histParams)]);
-    return;
-  }
 
   const moisPath = `users/${userId}/mois/${month.moisId}`;
   try {
@@ -559,8 +594,7 @@ export async function addExpense(
     ...month.depensesCategories,
     [input.categorieId]: { ...cat, depenseCumulee: cat.depenseCumulee + montant },
   };
-  const expensePayload: ExpenseEntry = {
-    id: depenseId,
+  const expensePayload: Omit<ExpenseEntry, 'id'> = {
     userId,
     moisId: month.moisId,
     categorieId: input.categorieId,
@@ -568,7 +602,7 @@ export async function addExpense(
     montant,
     description,
     note,
-    createdAt: new Date().toISOString(),
+    createdAt: serverTimestamp(),
   };
   const histParams = {
     type: 'AJOUT_DEPENSE' as const,
@@ -579,25 +613,13 @@ export async function addExpense(
     soldeApres,
   };
 
-  if (userId === LOCAL_USER_ID) {
-    updateLocalMonth(month.moisId, (m) => ({
-      ...m,
-      salaire: nextSalaire,
-      depensesCategories: nextDeps,
-    }));
-    appendLocalExpense(expensePayload);
-    appendLocalHistory([buildHistoryRecord(userId, month, histParams)]);
-    return;
-  }
-
   const depensePath = `users/${userId}/mois/${month.moisId}/depenses/${depenseId}`;
   try {
     const batch = writeBatch(db);
     const moisRef = doc(db, 'users', userId, 'mois', month.moisId);
     const depRef = doc(db, 'users', userId, 'mois', month.moisId, 'depenses', depenseId);
-    const { id: _id, ...depWithoutId } = expensePayload;
 
-    batch.set(depRef, { ...depWithoutId, createdAt: serverTimestamp() });
+    batch.set(depRef, expensePayload);
     batch.update(moisRef, {
       salaire: nextSalaire,
       depensesCategories: nextDeps,
@@ -667,17 +689,6 @@ export async function closeExpenseCategory(
     });
   }
 
-  if (userId === LOCAL_USER_ID) {
-    updateLocalMonth(month.moisId, (m) => ({
-      ...m,
-      salaire: nextSalaire,
-      depensesCategories: nextDeps,
-      caisses: nextCaisses,
-    }));
-    appendLocalHistory(histEntries.map((p) => buildHistoryRecord(userId, month, p)));
-    return;
-  }
-
   const moisPath = `users/${userId}/mois/${month.moisId}`;
   try {
     const batch = writeBatch(db);
@@ -727,16 +738,6 @@ export async function fundCaisseDotation(
     soldeAvant: caisse.soldeActuel,
     soldeApres: nextCaisseSolde,
   };
-
-  if (userId === LOCAL_USER_ID) {
-    updateLocalMonth(month.moisId, (m) => ({
-      ...m,
-      salaire: nextSalaire,
-      caisses: nextCaisses,
-    }));
-    appendLocalHistory([buildHistoryRecord(userId, month, histParams)]);
-    return;
-  }
 
   const moisPath = `users/${userId}/mois/${month.moisId}`;
   try {
@@ -790,12 +791,6 @@ export async function withdrawFromCaisse(
     soldeApres,
   };
 
-  if (userId === LOCAL_USER_ID) {
-    updateLocalMonth(month.moisId, (m) => ({ ...m, caisses: nextCaisses }));
-    appendLocalHistory([buildHistoryRecord(userId, month, histParams)]);
-    return;
-  }
-
   const moisPath = `users/${userId}/mois/${month.moisId}`;
   try {
     const batch = writeBatch(db);
@@ -844,12 +839,6 @@ export async function transferCaisseToSurplus(
     soldeApres: sourceApres,
   };
 
-  if (userId === LOCAL_USER_ID) {
-    updateLocalMonth(month.moisId, (m) => ({ ...m, caisses: nextCaisses }));
-    appendLocalHistory([buildHistoryRecord(userId, month, histParams)]);
-    return;
-  }
-
   const moisPath = `users/${userId}/mois/${month.moisId}`;
   try {
     const batch = writeBatch(db);
@@ -897,12 +886,6 @@ export async function transferSurplusToCaisse(
     soldeAvant: surplusAvant,
     soldeApres: surplusApres,
   };
-
-  if (userId === LOCAL_USER_ID) {
-    updateLocalMonth(month.moisId, (m) => ({ ...m, caisses: nextCaisses }));
-    appendLocalHistory([buildHistoryRecord(userId, month, histParams)]);
-    return;
-  }
 
   const moisPath = `users/${userId}/mois/${month.moisId}`;
   try {
@@ -974,22 +957,6 @@ export async function closeMonthAndCarryOver(
     soldeAvant: currentMonth.salaire.argentEncoreDisponible,
     soldeApres: totalCaissesFinal,
   };
-
-  if (userId === LOCAL_USER_ID) {
-    const months = ensureLocalMonthsInitialized();
-    const updated = months.map((m) => {
-      if (m.moisId === currentMonth.moisId) {
-        return { ...m, statut: 'CLOTURE' as const, clotureLe: nowStr };
-      }
-      if (nextMonth && carriedCaisses && m.moisId === nextMonth.moisId) {
-        return { ...m, statut: 'OUVERT' as const, caisses: carriedCaisses };
-      }
-      return m;
-    });
-    saveLocalMonths(updated);
-    appendLocalHistory([buildHistoryRecord(userId, currentMonth, histParams)]);
-    return;
-  }
 
   const moisPath = `users/${userId}/mois/${currentMonth.moisId}`;
   try {

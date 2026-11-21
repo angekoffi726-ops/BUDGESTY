@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -18,6 +19,7 @@ import {
 } from '../../types/budget';
 import { addExpense, closeExpenseCategory } from '../../lib/budgetService';
 import { formatFCFA, getTodayIsoDate } from '../../lib/format';
+import { AnimatedNumber } from '../AnimatedNumber';
 
 interface DepensesViewProps {
   userId: string;
@@ -48,6 +50,9 @@ export const DepensesView: React.FC<DepensesViewProps> = ({
     (sum, k) => sum + month.depensesCategories[k].depenseCumulee,
     0
   );
+  const depensePct = Math.min(100, (totalDepense / TOTAL_DEPENSES_BUDGET) * 100);
+  const ringCircumference = 2 * Math.PI * 24;
+  const ringOffset = ringCircumference * (1 - depensePct / 100);
 
   const selectedCat = month.depensesCategories[activeCat];
   const resteSelected = Math.max(0, selectedCat.budgetAlloue - selectedCat.depenseCumulee);
@@ -105,38 +110,93 @@ export const DepensesView: React.FC<DepensesViewProps> = ({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="border border-[#DDEBD8] bg-white rounded-xl p-6 space-y-5">
+    <div className="space-y-5 sm:space-y-6">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
+        className="bg-white/94 backdrop-blur-2xl border border-white/85 rounded-3xl p-5 sm:p-6 shadow-[0_24px_60px_-16px_rgba(38,18,78,0.42)] space-y-5"
+      >
         <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#DDEBD8]">
-          <div>
-            <div className="flex items-center gap-2.5">
-              <Receipt className="w-5 h-5 text-[#075B2E]" />
-              <h2 className="text-lg font-bold text-[#111111]">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#075B2E] via-[#006B35] to-[#6D28D9] text-white flex items-center justify-center shadow-md shrink-0">
+              <Receipt className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="font-display text-lg font-bold text-[#111111]">
                 Dépenses petit à petit — {month.label}
               </h2>
+              <p className="text-xs text-[#111111]/70 mt-0.5">
+                Suivi daté des achats courants. La clôture d’une catégorie transfère son reliquat
+                positif vers la Caisse Surplus.
+              </p>
             </div>
-            <p className="text-xs text-[#111111]/70 mt-1">
-              Suivi daté des achats courants. La clôture d’une catégorie transfère son reliquat
-              positif vers la Caisse Surplus.
-            </p>
           </div>
-          <div className="text-right">
+          <div className="text-left sm:text-right">
             <p className="text-xs text-[#111111]/60">Cumulé / Enveloppe</p>
-            <p className="font-mono-num text-lg font-bold text-[#075B2E]">
-              {formatFCFA(totalDepense)} / {formatFCFA(TOTAL_DEPENSES_BUDGET)}
+            <p className="font-mono-num text-lg font-bold text-[#5B21B6]">
+              <AnimatedNumber value={totalDepense} /> / {formatFCFA(TOTAL_DEPENSES_BUDGET)}
             </p>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-[#DDEBD8]/35 rounded-lg px-4 py-3 text-sm">
-          <span className="font-medium text-[#075B2E]">Argent encore disponible ce mois</span>
-          <span className="font-mono-num font-bold text-[#006B35]">
-            {formatFCFA(month.salaire.argentEncoreDisponible)}
-          </span>
+        {/* Gradient Banner with SVG progress ring + glint */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#054422] via-[#006B35] to-[#6D28D9] text-white p-4 sm:p-5 shadow-[0_18px_36px_-12px_rgba(91,33,182,0.6)] flex items-center justify-between gap-4">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-0 w-36 bg-gradient-to-r from-transparent via-white/14 to-transparent animate-sheen"
+          />
+          <div className="relative z-10 flex-1 space-y-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+              <span className="font-medium text-[#DDD6FE]">Argent encore disponible ce mois</span>
+              <span className="font-mono-num font-extrabold text-lg text-white">
+                <AnimatedNumber value={month.salaire.argentEncoreDisponible} />
+              </span>
+            </div>
+            <div className="h-3 bg-black/25 rounded-full overflow-hidden p-0.5">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${depensePct}%` }}
+                transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                className="relative h-full rounded-full bg-gradient-to-r from-[#DDEBD8] via-white to-[#C4B5FD] overflow-hidden"
+              >
+                <span className="absolute inset-y-0 w-12 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-progress-glint" />
+              </motion.div>
+            </div>
+          </div>
+
+          <div className="relative z-10 w-16 h-16 flex items-center justify-center shrink-0">
+            <svg className="w-16 h-16 -rotate-90" viewBox="0 0 60 60" aria-hidden="true">
+              <circle
+                cx="30"
+                cy="30"
+                r="24"
+                fill="none"
+                stroke="rgba(221,214,254,0.25)"
+                strokeWidth="5"
+              />
+              <motion.circle
+                cx="30"
+                cy="30"
+                r="24"
+                fill="none"
+                stroke="#FFFFFF"
+                strokeWidth="5"
+                strokeLinecap="round"
+                strokeDasharray={ringCircumference}
+                initial={{ strokeDashoffset: ringCircumference }}
+                animate={{ strokeDashoffset: ringOffset }}
+                transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+              />
+            </svg>
+            <span className="absolute font-mono-num text-xs font-extrabold text-white">
+              {Math.round(depensePct)}%
+            </span>
+          </div>
         </div>
 
         {isMonthOpen && !salaryReady && (
-          <div className="p-4 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 text-sm flex items-start gap-2.5">
+          <div className="p-4 rounded-2xl border border-amber-300 bg-amber-50/95 text-amber-900 text-sm flex items-start gap-2.5">
             <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5 text-amber-700" />
             <span>
               Salaire non alimenté : alimentez le salaire dans l’onglet Accueil avant d’ajouter ou
@@ -145,22 +205,34 @@ export const DepensesView: React.FC<DepensesViewProps> = ({
           </div>
         )}
 
-        {errorMsg && (
-          <div className="p-3.5 rounded-lg border border-red-200 bg-red-50 text-red-800 text-sm flex items-start gap-2">
-            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-            <span>{errorMsg}</span>
-          </div>
-        )}
-        {successMsg && (
-          <div className="p-3.5 rounded-lg border border-[#006B35]/30 bg-[#DDEBD8]/50 text-[#075B2E] text-sm flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 shrink-0" />
-            <span>{successMsg}</span>
-          </div>
-        )}
+        <AnimatePresence>
+          {errorMsg && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="p-3.5 rounded-xl border border-red-200 bg-red-50 text-red-800 text-sm flex items-start gap-2"
+            >
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{errorMsg}</span>
+            </motion.div>
+          )}
+          {successMsg && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="p-3.5 rounded-xl border border-[#5B21B6]/25 bg-gradient-to-r from-[#DDEBD8]/80 to-[#EDE9FE]/80 text-[#075B2E] text-sm flex items-center gap-2"
+            >
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-[#5B21B6]" />
+              <span>{successMsg}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* 3 Category cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {DEPENSES_ORDER.map((catKey) => {
+          {DEPENSES_ORDER.map((catKey, idx) => {
             const cat = month.depensesCategories[catKey];
             const reste = Math.max(0, cat.budgetAlloue - cat.depenseCumulee);
             const transferable = Math.min(reste, month.salaire.argentEncoreDisponible);
@@ -168,21 +240,25 @@ export const DepensesView: React.FC<DepensesViewProps> = ({
             const isSelected = activeCat === catKey;
 
             return (
-              <div
+              <motion.div
                 key={catKey}
-                className={`border rounded-xl p-4 flex flex-col justify-between space-y-4 transition-colors ${
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.28, delay: idx * 0.05 }}
+                whileHover={{ y: -3, scale: 1.01 }}
+                className={`border rounded-2xl p-4 sm:p-5 flex flex-col justify-between space-y-4 transition-all ${
                   isSelected
-                    ? 'border-[#006B35] bg-[#DDEBD8]/20'
-                    : 'border-[#DDEBD8] bg-white'
+                    ? 'border-[#5B21B6]/45 bg-gradient-to-br from-[#DDEBD8]/65 via-white to-[#EDE9FE]/70 shadow-[0_16px_32px_-14px_rgba(91,33,182,0.38)]'
+                    : 'border-[#DDEBD8] bg-white hover:border-[#5B21B6]/25 shadow-xs'
                 }`}
               >
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="text-sm font-bold text-[#111111] leading-snug">
                       {cat.label}
                     </h3>
                     {cat.cloturee && (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#075B2E] shrink-0">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#5B21B6] shrink-0">
                         <Lock className="w-3.5 h-3.5" />
                         Clôturée
                       </span>
@@ -196,15 +272,22 @@ export const DepensesView: React.FC<DepensesViewProps> = ({
                     </span>
                   </div>
 
-                  <div className="h-2 bg-[#DDEBD8] rounded-full overflow-hidden">
-                    <div className="h-full bg-[#006B35]" style={{ width: `${pct}%` }} />
+                  <div className="h-2.5 bg-[#EDE9FE]/80 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${pct}%` }}
+                      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                      className="relative h-full rounded-full bg-gradient-to-r from-[#075B2E] via-[#006B35] to-[#6D28D9] overflow-hidden"
+                    >
+                      <span className="absolute inset-y-0 w-10 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-progress-glint" />
+                    </motion.div>
                   </div>
 
                   <div className="flex items-baseline justify-between text-xs">
                     <span className="text-[#111111]/65">
                       {cat.cloturee ? 'Transféré Surplus' : 'Reste catégorie'}
                     </span>
-                    <span className="font-mono-num font-semibold text-[#075B2E]">
+                    <span className="font-mono-num font-semibold text-[#5B21B6]">
                       {cat.cloturee
                         ? formatFCFA(cat.resteTransfereSurplus)
                         : formatFCFA(reste)}
@@ -212,52 +295,56 @@ export const DepensesView: React.FC<DepensesViewProps> = ({
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-[#DDEBD8] flex flex-wrap items-center justify-between gap-2">
-                  <button
+                <div className="pt-3 border-t border-[#DDEBD8] flex flex-wrap items-center justify-between gap-2">
+                  <motion.button
+                    whileTap={{ scale: 0.96 }}
                     type="button"
                     onClick={() => setActiveCat(catKey)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                    className={`min-h-[40px] px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
                       isSelected
-                        ? 'bg-[#075B2E] text-white'
-                        : 'bg-[#DDEBD8]/50 text-[#075B2E] hover:bg-[#DDEBD8]'
+                        ? 'bg-gradient-to-r from-[#075B2E] via-[#006B35] to-[#6D28D9] text-white shadow-sm'
+                        : 'bg-gradient-to-r from-[#DDEBD8]/70 to-[#EDE9FE]/70 text-[#075B2E] hover:from-[#DDEBD8] hover:to-[#EDE9FE]'
                     }`}
                   >
                     {isSelected ? 'Sélectionnée' : 'Sélectionner'}
-                  </button>
+                  </motion.button>
 
                   {!cat.cloturee && isMonthOpen && salaryReady && (
                     confirmCloseCat === catKey ? (
                       <div className="flex items-center gap-1.5">
-                        <button
+                        <motion.button
+                          whileTap={{ scale: 0.96 }}
                           type="button"
                           disabled={busy}
                           onClick={() => handleCloseCategory(catKey)}
-                          className="px-2.5 py-1.5 rounded-md bg-[#075B2E] text-white text-[11px] font-bold cursor-pointer"
+                          className="min-h-[38px] px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-[#075B2E] to-[#6D28D9] text-white text-[11px] font-bold cursor-pointer"
                         >
                           Confirmer ({formatFCFA(transferable)})
-                        </button>
-                        <button
+                        </motion.button>
+                        <motion.button
+                          whileTap={{ scale: 0.96 }}
                           type="button"
                           disabled={busy}
                           onClick={() => setConfirmCloseCat(null)}
-                          className="px-2 py-1.5 rounded-md border border-[#DDEBD8] text-[11px] font-semibold cursor-pointer"
+                          className="min-h-[38px] px-2.5 py-1.5 rounded-lg border border-[#DDEBD8] bg-white text-[11px] font-semibold cursor-pointer"
                         >
                           Annuler
-                        </button>
+                        </motion.button>
                       </div>
                     ) : (
-                      <button
+                      <motion.button
+                        whileTap={{ scale: 0.96 }}
                         type="button"
                         disabled={busy}
                         onClick={() => setConfirmCloseCat(catKey)}
-                        className="px-3 py-1.5 rounded-lg border border-[#075B2E]/30 text-[#075B2E] hover:bg-[#075B2E] hover:text-white text-xs font-semibold transition-colors cursor-pointer"
+                        className="min-h-[40px] px-3.5 py-1.5 rounded-xl border border-[#5B21B6]/30 text-[#5B21B6] hover:bg-gradient-to-r hover:from-[#075B2E] hover:to-[#6D28D9] hover:text-white text-xs font-semibold transition-colors cursor-pointer"
                       >
                         Clôturer
-                      </button>
+                      </motion.button>
                     )
                   )}
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
@@ -266,25 +353,25 @@ export const DepensesView: React.FC<DepensesViewProps> = ({
         {isMonthOpen && (
           <form
             onSubmit={handleAddExpense}
-            className="border border-[#DDEBD8] rounded-xl p-5 bg-[#DDEBD8]/15 space-y-4"
+            className="border border-[#5B21B6]/20 rounded-2xl p-4 sm:p-5 bg-gradient-to-br from-[#DDEBD8]/50 via-white to-[#EDE9FE]/55 space-y-4"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="text-sm font-bold text-[#075B2E]">
-                Ajouter une dépense — {selectedCat.label}
+                Ajouter une dépense — <span className="text-[#5B21B6]">{selectedCat.label}</span>
               </h3>
-              <span className="text-xs font-mono-num text-[#111111]/70">
+              <span className="text-xs font-mono-num font-semibold text-[#5B21B6] bg-white px-2.5 py-1 rounded-lg border border-[#DDD6FE]">
                 Plafond injectable :{' '}
                 {formatFCFA(Math.min(resteSelected, month.salaire.argentEncoreDisponible))}
               </span>
             </div>
 
             {selectedCat.cloturee ? (
-              <p className="text-xs text-[#075B2E] font-medium">
+              <p className="text-xs text-[#5B21B6] font-medium">
                 Cette catégorie est clôturée définitivement ({selectedCat.clotureeLe}).
               </p>
             ) : (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
                   <div>
                     <label className="block text-xs font-semibold text-[#111111] mb-1">
                       Date
@@ -295,7 +382,7 @@ export const DepensesView: React.FC<DepensesViewProps> = ({
                       disabled={!canAddToSelected || busy}
                       value={date}
                       onChange={(e) => setDate(e.target.value)}
-                      className="w-full px-3 py-2 text-sm font-mono-num bg-white border border-[#DDEBD8] rounded-lg focus:outline-none focus:border-[#006B35]"
+                      className="w-full min-h-[44px] px-3 py-2 text-sm font-mono-num bg-white border border-[#5B21B6]/20 rounded-xl focus:outline-none focus:border-[#6D28D9] focus:ring-2 focus:ring-[#7C3AED]/20"
                     />
                   </div>
                   <div>
@@ -311,7 +398,7 @@ export const DepensesView: React.FC<DepensesViewProps> = ({
                       value={montant}
                       onChange={(e) => setMontant(e.target.value)}
                       placeholder="Ex. 2500"
-                      className="w-full px-3 py-2 text-sm font-mono-num bg-white border border-[#DDEBD8] rounded-lg focus:outline-none focus:border-[#006B35]"
+                      className="w-full min-h-[44px] px-3 py-2 text-sm font-mono-num bg-white border border-[#5B21B6]/20 rounded-xl focus:outline-none focus:border-[#6D28D9] focus:ring-2 focus:ring-[#7C3AED]/20"
                     />
                   </div>
                   <div>
@@ -326,7 +413,7 @@ export const DepensesView: React.FC<DepensesViewProps> = ({
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       placeholder="Ex. Riz 5 kg + huile"
-                      className="w-full px-3 py-2 text-sm bg-white border border-[#DDEBD8] rounded-lg focus:outline-none focus:border-[#006B35]"
+                      className="w-full min-h-[44px] px-3 py-2 text-sm bg-white border border-[#5B21B6]/20 rounded-xl focus:outline-none focus:border-[#6D28D9] focus:ring-2 focus:ring-[#7C3AED]/20"
                     />
                   </div>
                   <div>
@@ -340,31 +427,34 @@ export const DepensesView: React.FC<DepensesViewProps> = ({
                       value={note}
                       onChange={(e) => setNote(e.target.value)}
                       placeholder="Précision..."
-                      className="w-full px-3 py-2 text-sm bg-white border border-[#DDEBD8] rounded-lg focus:outline-none focus:border-[#006B35]"
+                      className="w-full min-h-[44px] px-3 py-2 text-sm bg-white border border-[#5B21B6]/20 rounded-xl focus:outline-none focus:border-[#6D28D9] focus:ring-2 focus:ring-[#7C3AED]/20"
                     />
                   </div>
                 </div>
 
                 <div className="flex justify-end">
-                  <button
+                  <motion.button
+                    whileHover={canAddToSelected ? { scale: 1.02, y: -1 } : undefined}
+                    whileTap={canAddToSelected ? { scale: 0.97 } : undefined}
                     type="submit"
                     disabled={!canAddToSelected || busy}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#006B35] hover:bg-[#075B2E] text-white text-sm font-semibold transition-colors disabled:opacity-50 cursor-pointer"
+                    className="w-full sm:w-auto min-h-[46px] inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#075B2E] via-[#006B35] to-[#6D28D9] text-white text-sm font-semibold shadow-md transition-all disabled:opacity-50 cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Enregistrer la dépense</span>
-                  </button>
+                  </motion.button>
                 </div>
               </>
             )}
           </form>
         )}
 
-        {/* Recorded expenses list */}
-        <div className="border border-[#DDEBD8] rounded-xl overflow-hidden">
-          <div className="bg-[#DDEBD8]/40 px-4 py-3 flex items-center justify-between">
+        {/* Recorded expenses list: stacked mobile cards + desktop table */}
+        <div className="border border-[#DDEBD8] rounded-2xl overflow-hidden bg-white">
+          <div className="bg-gradient-to-r from-[#DDEBD8]/70 via-[#F5F3FF]/80 to-[#EDE9FE]/70 px-4 py-3 flex items-center justify-between">
             <h3 className="text-xs font-bold text-[#075B2E]">
-              Dépenses enregistrées sur {month.label} ({expenses.length})
+              Dépenses enregistrées sur {month.label}{' '}
+              <span className="text-[#5B21B6]">({expenses.length})</span>
             </h3>
           </div>
           {expenses.length === 0 ? (
@@ -373,39 +463,79 @@ export const DepensesView: React.FC<DepensesViewProps> = ({
               enregistrer votre première dépense datée.
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="border-b border-[#DDEBD8] text-[#111111]/65 bg-white">
-                  <tr>
-                    <th className="py-2.5 px-4 font-semibold">Date</th>
-                    <th className="py-2.5 px-4 font-semibold">Catégorie</th>
-                    <th className="py-2.5 px-4 font-semibold">Description</th>
-                    <th className="py-2.5 px-4 font-semibold">Note</th>
-                    <th className="py-2.5 px-4 font-semibold text-right">Montant</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#DDEBD8]">
-                  {expenses.map((exp) => (
-                    <tr key={exp.id} className="hover:bg-[#DDEBD8]/15">
-                      <td className="py-2.5 px-4 font-mono-num whitespace-nowrap">{exp.date}</td>
-                      <td className="py-2.5 px-4 font-medium text-[#075B2E]">
-                        {month.depensesCategories[exp.categorieId]?.label || exp.categorieId}
-                      </td>
-                      <td className="py-2.5 px-4 font-medium text-[#111111]">
-                        {exp.description}
-                      </td>
-                      <td className="py-2.5 px-4 text-[#111111]/65">{exp.note || '—'}</td>
-                      <td className="py-2.5 px-4 font-mono-num font-bold text-right whitespace-nowrap">
+            <>
+              {/* Mobile card list */}
+              <div className="md:hidden divide-y divide-[#EDE9FE]">
+                {expenses.map((exp, idx) => (
+                  <motion.div
+                    key={exp.id}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2, delay: Math.min(idx * 0.03, 0.25) }}
+                    className="p-4 space-y-1.5 bg-white"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-[#111111] truncate">
+                          {exp.description}
+                        </p>
+                        <p className="text-[11px] font-semibold text-[#5B21B6] mt-0.5">
+                          {month.depensesCategories[exp.categorieId]?.label || exp.categorieId}
+                          <span className="text-[#111111]/40 mx-1.5">·</span>
+                          <span className="font-mono-num text-[#111111]/65">{exp.date}</span>
+                        </p>
+                      </div>
+                      <span className="font-mono-num text-sm font-bold text-[#075B2E] whitespace-nowrap shrink-0">
                         {formatFCFA(exp.montant)}
-                      </td>
+                      </span>
+                    </div>
+                    {exp.note && (
+                      <p className="text-xs text-[#111111]/70 bg-gradient-to-r from-[#DDEBD8]/30 to-[#EDE9FE]/35 px-2.5 py-1.5 rounded-lg">
+                        {exp.note}
+                      </p>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Desktop table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="border-b border-[#DDEBD8] text-[#111111]/65 bg-white">
+                    <tr>
+                      <th className="py-3 px-4 font-semibold">Date</th>
+                      <th className="py-3 px-4 font-semibold">Catégorie</th>
+                      <th className="py-3 px-4 font-semibold">Description</th>
+                      <th className="py-3 px-4 font-semibold">Note</th>
+                      <th className="py-3 px-4 font-semibold text-right">Montant</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-[#EDE9FE]">
+                    {expenses.map((exp) => (
+                      <tr
+                        key={exp.id}
+                        className="hover:bg-gradient-to-r hover:from-[#DDEBD8]/20 hover:to-[#EDE9FE]/25 transition-colors"
+                      >
+                        <td className="py-3 px-4 font-mono-num whitespace-nowrap">{exp.date}</td>
+                        <td className="py-3 px-4 font-medium text-[#5B21B6]">
+                          {month.depensesCategories[exp.categorieId]?.label || exp.categorieId}
+                        </td>
+                        <td className="py-3 px-4 font-medium text-[#111111]">
+                          {exp.description}
+                        </td>
+                        <td className="py-3 px-4 text-[#111111]/65">{exp.note || '—'}</td>
+                        <td className="py-3 px-4 font-mono-num font-bold text-right whitespace-nowrap text-[#075B2E]">
+                          {formatFCFA(exp.montant)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

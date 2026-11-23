@@ -27,9 +27,9 @@ export const PWAInstallButton: React.FC = () => {
         whileTap={{ scale: 0.96 }}
         onClick={handleClick}
         aria-label={isIOS ? 'Installer sur iOS' : "Installer l'application"}
-        className="inline-flex items-center gap-1.5 min-h-[36px] md:min-h-[38px] px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#0F5D34] to-[#15803D] text-[#FAF0DF] text-xs sm:text-sm font-bold shadow-[0_6px_16px_-6px_rgba(15,93,52,0.55)] hover:shadow-[0_10px_20px_-6px_rgba(15,93,52,0.7)] border border-[#FAF0DF]/35 transition-all whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FDBA74]"
+        className="inline-flex items-center gap-1.5 min-h-[34px] md:min-h-[38px] px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#0F5D34] to-[#15803D] text-[#FAF0DF] text-xs sm:text-sm font-bold shadow-[0_6px_16px_-6px_rgba(15,93,52,0.55)] hover:shadow-[0_10px_20px_-6px_rgba(15,93,52,0.7)] border border-[#FAF0DF]/35 transition-all whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FDBA74]"
       >
-        <Download className="w-4 h-4 shrink-0" />
+        <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
         <span className="hidden sm:inline">Installer l&apos;app</span>
         <span className="sm:hidden">Installer</span>
       </motion.button>

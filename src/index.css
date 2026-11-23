@@ -16,7 +16,6 @@
     font-family: var(--font-sans);
     color: #1F160F;
     background: linear-gradient(135deg, #E8CFAF 0%, #F4E3CA 32%, #FDE2C4 58%, #FB923C 84%, #EA580C 100%);
-    background-attachment: fixed;
     min-height: 100vh;
     overflow-x: hidden;
   }
@@ -37,6 +36,15 @@
 
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 @keyframes auroraDriftA {

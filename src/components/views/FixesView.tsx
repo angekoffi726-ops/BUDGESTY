@@ -48,46 +48,45 @@ export const FixesView: React.FC<FixesViewProps> = ({ userId, month }) => {
   };
 
   return (
-    <div className="space-y-5 sm:space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
-        className="bg-[#F6EAD6]/95 backdrop-blur-2xl border border-[#DFC5A2] rounded-3xl p-5 sm:p-6 shadow-[0_22px_54px_-16px_rgba(124,45,18,0.26)] space-y-5"
+        className="bg-[#F6EAD6]/95 backdrop-blur-2xl border border-[#DFC5A2] rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 shadow-[0_18px_46px_-16px_rgba(124,45,18,0.24)] space-y-4 sm:space-y-5"
       >
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#DFC5A2]">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C2410C] via-[#EA580C] to-[#F97316] text-white flex items-center justify-center shadow-md shrink-0">
-              <LockKeyhole className="w-5 h-5" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 sm:pb-4 border-b border-[#DFC5A2]">
+          <div className="flex items-start gap-2.5 sm:gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#C2410C] via-[#EA580C] to-[#F97316] text-white flex items-center justify-center shadow-md shrink-0">
+              <LockKeyhole className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <h2 className="font-display text-lg font-bold text-[#1F160F]">
+              <h2 className="font-display text-base sm:text-lg font-bold text-[#1F160F]">
                 Fixes irréversibles — {month.label}
               </h2>
-              <p className="text-xs text-[#2B1E14]/75 mt-0.5">
-                Chaque charge fixe validée est définitivement verrouillée et déduite de l’argent
-                encore disponible.
+              <p className="text-[11px] sm:text-xs text-[#2B1E14]/75 mt-0.5 leading-snug">
+                Charges validées et verrouillées définitivement.
               </p>
             </div>
           </div>
-          <div className="text-left sm:text-right">
-            <p className="text-xs text-[#2B1E14]/65">Validés / Enveloppe</p>
-            <p className="font-mono-num text-lg font-bold text-[#C2410C]">
+          <div className="flex items-baseline justify-between sm:block sm:text-right bg-[#EFE0C9]/70 sm:bg-transparent px-3 py-2 sm:p-0 rounded-xl border border-[#DFC5A2] sm:border-0">
+            <p className="text-[11px] sm:text-xs text-[#2B1E14]/65">Validés / Enveloppe</p>
+            <p className="font-mono-num text-sm sm:text-lg font-bold text-[#C2410C]">
               <AnimatedNumber value={totalValide} /> / {formatFCFA(TOTAL_FIXES_BUDGET)}
             </p>
           </div>
         </div>
 
         {/* Gradient Progress Banner with animated SVG ring */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#9A3412] via-[#C2410C] to-[#EA580C] text-white p-4 sm:p-5 shadow-[0_18px_36px_-12px_rgba(124,45,18,0.42)] flex items-center justify-between gap-4">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#9A3412] via-[#C2410C] to-[#EA580C] text-white p-3.5 sm:p-5 shadow-[0_18px_36px_-12px_rgba(124,45,18,0.42)] flex items-center justify-between gap-3 sm:gap-4">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-y-0 w-36 bg-gradient-to-r from-transparent via-white/15 to-transparent animate-sheen"
           />
-          <div className="relative z-10 flex-1 space-y-2.5">
-            <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-              <span className="font-medium text-[#FDE2C4]">Argent encore disponible ce mois</span>
-              <span className="font-mono-num font-extrabold text-lg text-[#FAF0DF]">
+          <div className="relative z-10 flex-1 space-y-2">
+            <div className="flex flex-wrap items-center justify-between gap-1.5 text-xs sm:text-sm">
+              <span className="font-medium text-[#FDE2C4]">Disponible ce mois</span>
+              <span className="font-mono-num font-extrabold text-base sm:text-lg text-[#FAF0DF]">
                 <AnimatedNumber value={month.salaire.argentEncoreDisponible} />
               </span>
             </div>

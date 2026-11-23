@@ -52,6 +52,9 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [confirmFeed, setConfirmFeed] = useState(false);
   const [confirmCloseMonth, setConfirmCloseMonth] = useState(false);
+  const [mobileSection, setMobileSection] = useState<'synthese' | 'salaire'>(() =>
+    month.salaire.alimentee ? 'synthese' : 'salaire'
+  );
 
   useEffect(() => {
     setMontantARecevoir(String(month.salaire.montantARecevoir));
@@ -62,8 +65,10 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
     setConfirmCloseMonth(false);
     setErrorMsg(null);
     setSuccessMsg(null);
+    setMobileSection(month.salaire.alimentee ? 'synthese' : 'salaire');
   }, [
     month.moisId,
+    month.salaire.alimentee,
     month.salaire.montantARecevoir,
     month.salaire.bonus,
     month.salaire.datePrevue,
@@ -209,13 +214,13 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
   const previewActifPct = totalPrevu > 0 ? Math.round((previewActif / totalPrevu) * 100) : 100;
 
   return (
-    <div className="space-y-5 sm:space-y-6">
+    <div className="space-y-3.5 sm:space-y-6">
       {/* Hero Warm Terracotta-Orange & Beige Cockpit Card */}
       <motion.section
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
-        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#9A3412]/96 via-[#C2410C]/95 to-[#EA580C]/96 backdrop-blur-2xl text-white p-5 sm:p-7 shadow-[0_28px_64px_-16px_rgba(124,45,18,0.45)] border border-[#FAF0DF]/35"
+        className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#9A3412]/96 via-[#C2410C]/95 to-[#EA580C]/96 backdrop-blur-2xl text-white p-4 sm:p-7 shadow-[0_22px_54px_-16px_rgba(124,45,18,0.45)] border border-[#FAF0DF]/35"
       >
         <div
           aria-hidden="true"
@@ -224,7 +229,7 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
         <svg
           aria-hidden="true"
           viewBox="0 0 600 220"
-          className="pointer-events-none absolute right-0 bottom-0 w-96 opacity-25"
+          className="pointer-events-none absolute right-0 bottom-0 w-64 sm:w-96 opacity-25"
         >
           <motion.path
             d="M0 180 Q 150 90 300 150 T 600 100 L 600 220 L 0 220 Z"
@@ -241,26 +246,64 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
           </defs>
         </svg>
 
-        <div className="relative z-10 space-y-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
-            <div className="space-y-1.5">
-              <p className="text-xs font-semibold tracking-wide text-[#FDE2C4]">
-                Argent encore disponible · {month.label}
+        <div className="relative z-10 space-y-3.5 sm:space-y-5">
+          {/* Top balance + gauge row (always side-by-side even on 360px phones) */}
+          <div className="flex items-center justify-between gap-3 sm:gap-5">
+            <div className="space-y-1 min-w-0">
+              <p className="text-[11px] sm:text-xs font-semibold tracking-wide text-[#FDE2C4] truncate">
+                Disponible · {month.label}
               </p>
-              <p className="font-display font-mono-num text-3xl sm:text-5xl font-extrabold tracking-tight text-[#FAF0DF] drop-shadow-sm">
+              <p className="font-display font-mono-num text-[26px] leading-tight sm:text-5xl font-extrabold tracking-tight text-[#FAF0DF] drop-shadow-sm">
                 <AnimatedNumber value={month.salaire.argentEncoreDisponible} />
               </p>
-              <p className="text-xs text-[#F5E4CA]/95">
+              <p className="text-[11px] sm:text-xs text-[#F5E4CA]/95 leading-snug">
                 {month.salaire.alimentee
-                  ? `Solde budgétaire libre sur ${formatFCFA(month.salaire.montantActif)} actif · Référence ${formatFCFA(SALAIRE_REFERENCE)}`
-                  : `En attente d’alimentation du salaire · Référence ${formatFCFA(SALAIRE_REFERENCE)}`}
+                  ? `Sur ${formatFCFA(month.salaire.montantActif)} actif · Réf. ${formatFCFA(SALAIRE_REFERENCE)}`
+                  : `Salaire à alimenter · Réf. ${formatFCFA(SALAIRE_REFERENCE)}`}
               </p>
             </div>
 
-            {/* Animated Radial Balance Gauge */}
+            {/* Compact mobile radial gauge */}
+            <div className="sm:hidden relative w-16 h-16 flex items-center justify-center shrink-0 rounded-2xl bg-[#4A1907]/35 border border-[#FAF0DF]/30 p-1">
+              <svg className="w-14 h-14 -rotate-90" viewBox="0 0 96 96" aria-hidden="true">
+                <circle
+                  cx="48"
+                  cy="48"
+                  r="40"
+                  fill="none"
+                  stroke="rgba(250,240,223,0.25)"
+                  strokeWidth="9"
+                />
+                <motion.circle
+                  cx="48"
+                  cy="48"
+                  r="40"
+                  fill="none"
+                  stroke="url(#heroRingSunsetMobile)"
+                  strokeWidth="9"
+                  strokeLinecap="round"
+                  strokeDasharray={ringCircumference}
+                  initial={{ strokeDashoffset: ringCircumference }}
+                  animate={{ strokeDashoffset: ringOffset }}
+                  transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+                />
+                <defs>
+                  <linearGradient id="heroRingSunsetMobile" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#FAF0DF" />
+                    <stop offset="60%" stopColor="#FDBA74" />
+                    <stop offset="100%" stopColor="#34D399" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <span className="absolute font-mono-num text-xs font-extrabold text-[#FAF0DF]">
+                {Math.round(availableRatio)}%
+              </span>
+            </div>
+
+            {/* Full Desktop Radial Balance Gauge */}
             <motion.div
               whileHover={{ scale: 1.03 }}
-              className="flex items-center gap-4 self-start sm:self-center bg-[#4A1907]/38 border border-[#FAF0DF]/35 rounded-2xl px-4 py-3.5 backdrop-blur-md shadow-inner"
+              className="hidden sm:flex items-center gap-4 self-center bg-[#4A1907]/38 border border-[#FAF0DF]/35 rounded-2xl px-4 py-3.5 backdrop-blur-md shadow-inner shrink-0"
             >
               <div className="relative w-24 h-24 flex items-center justify-center shrink-0">
                 <svg className="w-24 h-24 -rotate-90" viewBox="0 0 96 96" aria-hidden="true">
@@ -309,18 +352,20 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
             </motion.div>
           </div>
 
-          {/* 3-metric elevated beige-glass sub-row */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+          {/* 3-metric strip: tight 3-col compact tiles on mobile, rich cards on desktop */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-0.5">
             <motion.div
               whileHover={{ y: -3, scale: 1.01 }}
               transition={{ duration: 0.16 }}
-              className="rounded-2xl bg-[#FAF0DF]/16 border border-[#FAF0DF]/35 backdrop-blur-md p-4 shadow-sm"
+              className="rounded-xl sm:rounded-2xl bg-[#FAF0DF]/16 border border-[#FAF0DF]/35 backdrop-blur-md p-2.5 sm:p-4 shadow-sm"
             >
-              <p className="text-[11px] font-medium text-[#FDE2C4]">Montant actif du mois</p>
-              <p className="font-mono-num text-lg sm:text-xl font-bold text-white mt-0.5">
+              <p className="text-[10px] sm:text-[11px] font-medium text-[#FDE2C4] truncate">
+                Actif mois
+              </p>
+              <p className="font-mono-num text-xs sm:text-xl font-bold text-white mt-0.5 truncate">
                 <AnimatedNumber value={month.salaire.montantActif} />
               </p>
-              <p className="text-[11px] text-[#FAF0DF]/85 mt-0.5">
+              <p className="hidden sm:block text-[11px] text-[#FAF0DF]/85 mt-0.5">
                 Plafonné à {formatFCFA(SALAIRE_REFERENCE)}
               </p>
             </motion.div>
@@ -328,13 +373,15 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
             <motion.div
               whileHover={{ y: -3, scale: 1.01 }}
               transition={{ duration: 0.16 }}
-              className="rounded-2xl bg-[#FAF0DF]/16 border border-[#FDBA74]/45 backdrop-blur-md p-4 shadow-sm"
+              className="rounded-xl sm:rounded-2xl bg-[#FAF0DF]/16 border border-[#FDBA74]/45 backdrop-blur-md p-2.5 sm:p-4 shadow-sm"
             >
-              <p className="text-[11px] font-medium text-[#FDE2C4]">Budget engagé</p>
-              <p className="font-mono-num text-lg sm:text-xl font-bold text-white mt-0.5">
+              <p className="text-[10px] sm:text-[11px] font-medium text-[#FDE2C4] truncate">
+                Engagé
+              </p>
+              <p className="font-mono-num text-xs sm:text-xl font-bold text-white mt-0.5 truncate">
                 <AnimatedNumber value={totalEngage} />
               </p>
-              <p className="text-[11px] text-[#FAF0DF]/85 mt-0.5">
+              <p className="hidden sm:block text-[11px] text-[#FAF0DF]/85 mt-0.5">
                 Fixes · Dépenses · Caisses
               </p>
             </motion.div>
@@ -342,13 +389,15 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
             <motion.div
               whileHover={{ y: -3, scale: 1.01 }}
               transition={{ duration: 0.16 }}
-              className="rounded-2xl bg-[#FAF0DF]/16 border border-[#FAF0DF]/35 backdrop-blur-md p-4 shadow-sm"
+              className="rounded-xl sm:rounded-2xl bg-[#FAF0DF]/16 border border-[#FAF0DF]/35 backdrop-blur-md p-2.5 sm:p-4 shadow-sm"
             >
-              <p className="text-[11px] font-medium text-[#FAF0DF]">Réserve Caisses + Surplus</p>
-              <p className="font-mono-num text-lg sm:text-xl font-bold text-white mt-0.5">
+              <p className="text-[10px] sm:text-[11px] font-medium text-[#FAF0DF] truncate">
+                Caisses + Surplus
+              </p>
+              <p className="font-mono-num text-xs sm:text-xl font-bold text-white mt-0.5 truncate">
                 <AnimatedNumber value={totalCaissesEtSurplus} />
               </p>
-              <p className="text-[11px] text-[#FAF0DF]/90 mt-0.5">
+              <p className="hidden sm:block text-[11px] text-[#FAF0DF]/90 mt-0.5">
                 Dont Surplus : {formatFCFA(month.caisses.surplus.soldeActuel)}
               </p>
             </motion.div>
@@ -400,14 +449,51 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
         </motion.div>
       )}
 
+      {/* Mobile segmented switcher: avoids scattering Salary & Synthesis down the screen */}
+      <div className="lg:hidden grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-[#E8D2B2]/95 border border-[#D7B88E] shadow-xs">
+        <button
+          type="button"
+          onClick={() => setMobileSection('synthese')}
+          className={`min-h-[42px] px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            mobileSection === 'synthese'
+              ? 'bg-gradient-to-r from-[#C2410C] via-[#EA580C] to-[#F97316] text-white shadow-sm'
+              : 'text-[#5C3A21] hover:text-[#1F160F]'
+          }`}
+        >
+          Synthèse &amp; Blocs
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileSection('salaire')}
+          className={`min-h-[42px] px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 ${
+            mobileSection === 'salaire'
+              ? 'bg-gradient-to-r from-[#C2410C] via-[#EA580C] to-[#F97316] text-white shadow-sm'
+              : 'text-[#5C3A21] hover:text-[#1F160F]'
+          }`}
+        >
+          <span>Salaire</span>
+          <span
+            className={`text-[10px] font-bold ${
+              mobileSection === 'salaire'
+                ? 'text-[#FDE2C4]'
+                : month.salaire.alimentee
+                  ? 'text-[#15803D]'
+                  : 'text-[#C2410C]'
+            }`}
+          >
+            · {month.salaire.alimentee ? 'OK' : 'À faire'}
+          </span>
+        </button>
+      </div>
+
       {/* Main 2-column grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
         {/* Card: Réception du salaire */}
         <motion.section
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.36, delay: 0.06, ease: [0.16, 1, 0.3, 1] }}
-          className="lg:col-span-7 bg-[#F6EAD6]/95 backdrop-blur-2xl border border-[#DFC5A2] rounded-3xl p-5 sm:p-6 shadow-[0_22px_54px_-16px_rgba(124,45,18,0.26)] space-y-5"
+          className={`${mobileSection === 'salaire' ? 'block' : 'hidden lg:block'} lg:col-span-7 bg-[#F6EAD6]/95 backdrop-blur-2xl border border-[#DFC5A2] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_18px_46px_-16px_rgba(124,45,18,0.24)] space-y-4 sm:space-y-5`}
         >
           <div className="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-[#DFC5A2]">
             <div className="flex items-center gap-3">
@@ -431,10 +517,10 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
 
           {!month.salaire.alimentee && !isReadOnly ? (
             <form onSubmit={handleSavePreview} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3.5">
                 <div>
-                  <label className="block text-xs font-semibold text-[#1F160F] mb-1.5">
-                    Montant à recevoir (F CFA)
+                  <label className="block text-[11px] sm:text-xs font-semibold text-[#1F160F] mb-1">
+                    Montant (F CFA)
                   </label>
                   <input
                     type="number"
@@ -444,12 +530,12 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                     required
                     value={montantARecevoir}
                     onChange={(e) => setMontantARecevoir(e.target.value)}
-                    className="w-full min-h-[44px] px-3 py-2 text-sm font-mono-num bg-[#FBF4E8] border border-[#D7B88E] rounded-xl focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
+                    className="w-full min-h-[44px] px-3 py-2 text-base sm:text-sm font-mono-num bg-[#FBF4E8] border border-[#D7B88E] rounded-xl focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#1F160F] mb-1.5">
-                    Bonus éventuel (F CFA)
+                  <label className="block text-[11px] sm:text-xs font-semibold text-[#1F160F] mb-1">
+                    Bonus (F CFA)
                   </label>
                   <input
                     type="number"
@@ -458,11 +544,11 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                     step={50}
                     value={bonus}
                     onChange={(e) => setBonus(e.target.value)}
-                    className="w-full min-h-[44px] px-3 py-2 text-sm font-mono-num bg-[#FBF4E8] border border-[#D7B88E] rounded-xl focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
+                    className="w-full min-h-[44px] px-3 py-2 text-base sm:text-sm font-mono-num bg-[#FBF4E8] border border-[#D7B88E] rounded-xl focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
                   />
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-[#1F160F] mb-1.5">
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="block text-[11px] sm:text-xs font-semibold text-[#1F160F] mb-1">
                     Date prévue de réception
                   </label>
                   <input
@@ -470,13 +556,13 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                     required
                     value={datePrevue}
                     onChange={(e) => setDatePrevue(e.target.value)}
-                    className="w-full min-h-[44px] px-3 py-2 text-sm font-mono-num bg-[#FBF4E8] border border-[#D7B88E] rounded-xl focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
+                    className="w-full min-h-[44px] px-3 py-2 text-base sm:text-sm font-mono-num bg-[#FBF4E8] border border-[#D7B88E] rounded-xl focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#1F160F] mb-1.5">
+                <label className="block text-[11px] sm:text-xs font-semibold text-[#1F160F] mb-1">
                   Motif {needsMotif ? '(obligatoire car total ≠ 155 000 F CFA)' : '(optionnel)'}
                 </label>
                 <input
@@ -490,7 +576,7 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
                       ? 'Expliquez l’écart par rapport aux 155 000 F CFA...'
                       : 'Note ou précision sur la paie...'
                   }
-                  className="w-full min-h-[44px] px-3 py-2 text-sm bg-[#FBF4E8] border border-[#D7B88E] rounded-xl focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
+                  className="w-full min-h-[44px] px-3 py-2 text-base sm:text-sm bg-[#FBF4E8] border border-[#D7B88E] rounded-xl focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
                 />
               </div>
 
@@ -589,29 +675,29 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
               </div>
             </form>
           ) : (
-            <div className="space-y-4 text-sm">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div className="p-3.5 rounded-2xl bg-[#EFE0C9] border border-[#D7B88E]">
-                  <p className="text-xs text-[#2B1E14]/70">Salaire prévu / reçu</p>
-                  <p className="font-mono-num font-bold text-[#1F160F] text-base mt-0.5">
+            <div className="space-y-3.5 text-sm">
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-3.5">
+                <div className="p-3 sm:p-3.5 rounded-2xl bg-[#EFE0C9] border border-[#D7B88E]">
+                  <p className="text-[11px] sm:text-xs text-[#2B1E14]/70">Salaire reçu</p>
+                  <p className="font-mono-num font-bold text-[#1F160F] text-sm sm:text-base mt-0.5">
                     {formatFCFA(month.salaire.montantARecevoir + month.salaire.bonus)}
                   </p>
                 </div>
-                <div className="p-3.5 rounded-2xl bg-gradient-to-br from-[#FBF4E8] via-[#F2E2C9] to-[#E5D3B3] border border-[#15803D]/25">
-                  <p className="text-xs text-[#15803D] font-semibold">Montant actif</p>
-                  <p className="font-mono-num font-bold text-[#15803D] text-base mt-0.5">
+                <div className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-br from-[#FBF4E8] via-[#F2E2C9] to-[#E5D3B3] border border-[#15803D]/25">
+                  <p className="text-[11px] sm:text-xs text-[#15803D] font-semibold">Montant actif</p>
+                  <p className="font-mono-num font-bold text-[#15803D] text-sm sm:text-base mt-0.5">
                     {formatFCFA(month.salaire.montantActif)}
                   </p>
                 </div>
-                <div className="p-3.5 rounded-2xl bg-[#FBF4E8] border border-[#DFC5A2]">
-                  <p className="text-xs text-[#2B1E14]/70">Bonus déclaré</p>
-                  <p className="font-mono-num font-semibold text-[#EA580C] text-base mt-0.5">
+                <div className="p-3 sm:p-3.5 rounded-2xl bg-[#FBF4E8] border border-[#DFC5A2]">
+                  <p className="text-[11px] sm:text-xs text-[#2B1E14]/70">Bonus déclaré</p>
+                  <p className="font-mono-num font-semibold text-[#EA580C] text-sm sm:text-base mt-0.5">
                     {formatFCFA(month.salaire.bonus)}
                   </p>
                 </div>
-                <div className="p-3.5 rounded-2xl bg-[#FBF4E8] border border-[#DFC5A2]">
-                  <p className="text-xs text-[#2B1E14]/70">Excédent vers Caisse Surplus</p>
-                  <p className="font-mono-num font-semibold text-[#C2410C] text-base mt-0.5">
+                <div className="p-3 sm:p-3.5 rounded-2xl bg-[#FBF4E8] border border-[#DFC5A2]">
+                  <p className="text-[11px] sm:text-xs text-[#2B1E14]/70">Vers Surplus</p>
+                  <p className="font-mono-num font-semibold text-[#C2410C] text-sm sm:text-base mt-0.5">
                     {formatFCFA(month.salaire.excedentTransfere)}
                   </p>
                 </div>
@@ -648,7 +734,7 @@ export const AccueilView: React.FC<AccueilViewProps> = ({
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.36, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
-          className="lg:col-span-5 bg-[#F6EAD6]/95 backdrop-blur-2xl border border-[#DFC5A2] rounded-3xl p-5 sm:p-6 shadow-[0_22px_54px_-16px_rgba(124,45,18,0.26)] flex flex-col justify-between space-y-5"
+          className={`${mobileSection === 'synthese' ? 'flex' : 'hidden lg:flex'} lg:col-span-5 bg-[#F6EAD6]/95 backdrop-blur-2xl border border-[#DFC5A2] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_18px_46px_-16px_rgba(124,45,18,0.24)] flex-col justify-between space-y-4 sm:space-y-5`}
         >
           <div className="space-y-4">
             <h2 className="font-display text-base sm:text-lg font-bold text-[#1F160F] pb-3 border-b border-[#DFC5A2]">

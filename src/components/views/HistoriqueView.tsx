@@ -38,23 +38,24 @@ export const HistoriqueView: React.FC<HistoriqueViewProps> = ({
   }, [history, filterMonth, filterType, searchQuery]);
 
   return (
-    <div className="space-y-5 sm:space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
-        className="bg-[#F6EAD6]/95 backdrop-blur-2xl border border-[#DFC5A2] rounded-3xl p-5 sm:p-6 shadow-[0_22px_54px_-16px_rgba(124,45,18,0.26)] space-y-5"
+        className="bg-[#F6EAD6]/95 backdrop-blur-2xl border border-[#DFC5A2] rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 shadow-[0_18px_46px_-16px_rgba(124,45,18,0.24)] space-y-4 sm:space-y-5"
       >
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#DFC5A2]">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C2410C] via-[#EA580C] to-[#F97316] text-white flex items-center justify-center shadow-md shrink-0">
-              <History className="w-5 h-5" />
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 sm:pb-4 border-b border-[#DFC5A2]">
+          <div className="flex items-start gap-2.5 sm:gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#C2410C] via-[#EA580C] to-[#F97316] text-white flex items-center justify-center shadow-md shrink-0">
+              <History className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <h2 className="font-display text-lg font-bold text-[#1F160F]">Historique général</h2>
-              <p className="text-xs text-[#2B1E14]/75 mt-0.5">
-                Journal complet et immuable de chaque opération avec date, heure, motif et soldes
-                avant/après
+              <h2 className="font-display text-base sm:text-lg font-bold text-[#1F160F]">
+                Historique général
+              </h2>
+              <p className="text-[11px] sm:text-xs text-[#2B1E14]/75 mt-0.5 leading-snug">
+                Journal immuable des opérations
                 <span className="mx-1.5 text-[#EA580C]/45">·</span>
                 <strong className="font-mono-num text-[#C2410C]">
                   {filtered.length} opération{filtered.length > 1 ? 's' : ''}
@@ -64,19 +65,19 @@ export const HistoriqueView: React.FC<HistoriqueViewProps> = ({
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+        {/* Filters: 2-col dropdowns + full-width search on mobile; 3-col on sm+ */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3.5">
           <div>
-            <label className="block text-xs font-semibold text-[#1F160F] mb-1">
-              Filtrer par mois
+            <label className="block text-[11px] sm:text-xs font-semibold text-[#1F160F] mb-1">
+              Mois
             </label>
             <select
               value={filterMonth}
               onChange={(e) => setFilterMonth(e.target.value)}
-              className="w-full min-h-[44px] px-3 py-2 text-xs border border-[#D7B88E] rounded-xl bg-[#FBF4E8] focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
+              className="w-full min-h-[42px] px-2.5 sm:px-3 py-2 text-xs border border-[#D7B88E] rounded-xl bg-[#FBF4E8] focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
             >
-              <option value="ALL">Tous les mois (2027)</option>
-              <option value={activeMoisId}>Mois sélectionné ({activeMoisId})</option>
+              <option value="ALL">Tous (2027)</option>
+              <option value={activeMoisId}>Actuel ({activeMoisId})</option>
               {MONTHS_2027.map((m) => (
                 <option key={m.moisId} value={m.moisId}>
                   {m.label}
@@ -86,15 +87,15 @@ export const HistoriqueView: React.FC<HistoriqueViewProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1F160F] mb-1">
-              Filtrer par type d’opération
+            <label className="block text-[11px] sm:text-xs font-semibold text-[#1F160F] mb-1">
+              Type
             </label>
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className="w-full min-h-[44px] px-3 py-2 text-xs border border-[#D7B88E] rounded-xl bg-[#FBF4E8] focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
+              className="w-full min-h-[42px] px-2.5 sm:px-3 py-2 text-xs border border-[#D7B88E] rounded-xl bg-[#FBF4E8] focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
             >
-              <option value="ALL">Tous les types d’opérations</option>
+              <option value="ALL">Tous types</option>
               {ALL_TYPES.map((t) => (
                 <option key={t} value={t}>
                   {HISTORY_TYPE_LABELS[t]}
@@ -103,8 +104,8 @@ export const HistoriqueView: React.FC<HistoriqueViewProps> = ({
             </select>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-[#1F160F] mb-1">
+          <div className="col-span-2 sm:col-span-1">
+            <label className="block text-[11px] sm:text-xs font-semibold text-[#1F160F] mb-1">
               Rechercher
             </label>
             <div className="relative">
@@ -114,7 +115,7 @@ export const HistoriqueView: React.FC<HistoriqueViewProps> = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Motif, catégorie..."
-                className="w-full min-h-[44px] pl-9 pr-3 py-2 text-xs bg-[#FBF4E8] border border-[#D7B88E] rounded-xl focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
+                className="w-full min-h-[42px] pl-9 pr-3 py-2 text-base sm:text-xs bg-[#FBF4E8] border border-[#D7B88E] rounded-xl focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
               />
             </div>
           </div>

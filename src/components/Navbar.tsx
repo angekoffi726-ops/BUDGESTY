@@ -39,13 +39,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           aria-hidden="true"
           className="pointer-events-none absolute inset-y-0 w-44 bg-gradient-to-r from-transparent via-white/16 to-transparent animate-sheen"
         />
-        <div className="relative z-10 max-w-7xl mx-auto px-3.5 sm:px-6 h-12 md:h-14 flex items-center justify-between gap-2.5 md:gap-6">
+        <div className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 h-12 md:h-14 flex items-center justify-between gap-2 md:gap-6">
           <button
             type="button"
             onClick={() => onSelectTab('accueil')}
-            className="inline-flex items-center gap-2 font-display text-lg sm:text-xl font-extrabold tracking-tight text-[#FAF0DF] whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FDBA74] rounded-md px-1"
+            className="inline-flex items-center gap-1.5 sm:gap-2 font-display text-base sm:text-xl font-extrabold tracking-tight text-[#FAF0DF] whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FDBA74] rounded-md px-0.5"
           >
-            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#FAF0DF] via-[#F4E3CA] to-[#FDBA74] text-[#9A3412] font-extrabold text-sm flex items-center justify-center shadow-sm">
+            <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-gradient-to-br from-[#FAF0DF] via-[#F4E3CA] to-[#FDBA74] text-[#9A3412] font-extrabold text-xs sm:text-sm flex items-center justify-center shadow-sm">
               B
             </span>
             <span>BUDGESTY</span>
@@ -81,7 +81,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             })}
           </nav>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <PWAInstallButton />
 
             <motion.button
@@ -89,10 +89,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               whileHover={{ scale: 1.04, y: -1 }}
               whileTap={{ scale: 0.96 }}
               onClick={onOpenPdf}
-              className="inline-flex items-center gap-1.5 min-h-[36px] md:min-h-[38px] px-3 sm:px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#FAF0DF] via-[#F6EAD6] to-[#FDE2C4] text-[#9A3412] text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FDBA74]"
+              className="inline-flex items-center gap-1.5 min-h-[34px] md:min-h-[38px] px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#FAF0DF] via-[#F6EAD6] to-[#FDE2C4] text-[#9A3412] text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FDBA74]"
             >
-              <FileText className="w-4 h-4 shrink-0 text-[#15803D]" />
-              <span>Bilan PDF</span>
+              <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-[#15803D]" />
+              <span className="hidden sm:inline">Bilan PDF</span>
+              <span className="sm:hidden">PDF</span>
             </motion.button>
           </div>
         </div>
@@ -100,7 +101,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       <nav
         aria-label="Navigation mobile"
-        className="md:hidden fixed bottom-2 left-2.5 right-2.5 z-40 rounded-2xl bg-gradient-to-r from-[#9A3412]/96 via-[#C2410C]/96 to-[#EA580C]/96 backdrop-blur-2xl text-[#FAF0DF] border border-[#FAF0DF]/25 shadow-[0_18px_42px_-8px_rgba(124,45,18,0.55)] pb-safe"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 rounded-t-2xl bg-gradient-to-r from-[#9A3412]/98 via-[#C2410C]/98 to-[#EA580C]/98 backdrop-blur-2xl text-[#FAF0DF] border-t border-[#FAF0DF]/25 shadow-[0_-10px_32px_-8px_rgba(124,45,18,0.45)] pb-safe"
       >
         <div className="grid grid-cols-6 h-14 px-1 items-center">
           {TABS.map((tab) => {
@@ -111,7 +112,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 key={tab.id}
                 type="button"
                 onClick={() => onSelectTab(tab.id)}
-                className={`relative flex flex-col items-center justify-center gap-0.5 min-h-[46px] rounded-xl text-[10px] font-medium transition-colors cursor-pointer focus-visible:outline-none ${
+                className={`relative flex flex-col items-center justify-center gap-0.5 min-h-[48px] rounded-xl text-[10px] font-medium transition-colors cursor-pointer focus-visible:outline-none ${
                   isActive ? 'text-[#9A3412] font-bold' : 'text-[#FAF0DF]/90 hover:text-white'
                 }`}
               >
@@ -119,11 +120,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <motion.span
                     layoutId="mobile-nav-indicator"
                     transition={{ type: 'spring', stiffness: 460, damping: 32 }}
-                    className="absolute inset-1 rounded-xl bg-gradient-to-br from-[#FAF0DF] via-[#F4E3CA] to-[#FDE2C4] shadow-md -z-10"
+                    className="absolute inset-x-1 inset-y-1 rounded-xl bg-gradient-to-br from-[#FAF0DF] via-[#F4E3CA] to-[#FDE2C4] shadow-sm -z-10"
                   />
                 )}
                 <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#15803D]' : ''}`} />
-                <span className="truncate max-w-full px-0.5 leading-tight">{tab.label}</span>
+                <span className="truncate max-w-full px-0.5 leading-tight tracking-tight">
+                  {tab.id === 'historique' ? 'Journal' : tab.label}
+                </span>
               </button>
             );
           })}

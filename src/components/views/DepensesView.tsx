@@ -110,46 +110,45 @@ export const DepensesView: React.FC<DepensesViewProps> = ({
   };
 
   return (
-    <div className="space-y-5 sm:space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
-        className="bg-[#F6EAD6]/95 backdrop-blur-2xl border border-[#DFC5A2] rounded-3xl p-5 sm:p-6 shadow-[0_22px_54px_-16px_rgba(124,45,18,0.26)] space-y-5"
+        className="bg-[#F6EAD6]/95 backdrop-blur-2xl border border-[#DFC5A2] rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 shadow-[0_18px_46px_-16px_rgba(124,45,18,0.24)] space-y-4 sm:space-y-5"
       >
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#DFC5A2]">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C2410C] via-[#EA580C] to-[#F97316] text-white flex items-center justify-center shadow-md shrink-0">
-              <Receipt className="w-5 h-5" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 sm:pb-4 border-b border-[#DFC5A2]">
+          <div className="flex items-start gap-2.5 sm:gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#C2410C] via-[#EA580C] to-[#F97316] text-white flex items-center justify-center shadow-md shrink-0">
+              <Receipt className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <h2 className="font-display text-lg font-bold text-[#1F160F]">
-                Dépenses petit à petit — {month.label}
+              <h2 className="font-display text-base sm:text-lg font-bold text-[#1F160F]">
+                Dépenses — {month.label}
               </h2>
-              <p className="text-xs text-[#2B1E14]/75 mt-0.5">
-                Suivi daté des achats courants. La clôture d’une catégorie transfère son reliquat
-                positif vers la Caisse Surplus.
+              <p className="text-[11px] sm:text-xs text-[#2B1E14]/75 mt-0.5 leading-snug">
+                Suivi daté · Clôturer transfère le reste vers Surplus.
               </p>
             </div>
           </div>
-          <div className="text-left sm:text-right">
-            <p className="text-xs text-[#2B1E14]/65">Cumulé / Enveloppe</p>
-            <p className="font-mono-num text-lg font-bold text-[#C2410C]">
+          <div className="flex items-baseline justify-between sm:block sm:text-right bg-[#EFE0C9]/70 sm:bg-transparent px-3 py-2 sm:p-0 rounded-xl border border-[#DFC5A2] sm:border-0">
+            <p className="text-[11px] sm:text-xs text-[#2B1E14]/65">Cumulé / Enveloppe</p>
+            <p className="font-mono-num text-sm sm:text-lg font-bold text-[#C2410C]">
               <AnimatedNumber value={totalDepense} /> / {formatFCFA(TOTAL_DEPENSES_BUDGET)}
             </p>
           </div>
         </div>
 
         {/* Gradient Banner with SVG progress ring + glint */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#9A3412] via-[#C2410C] to-[#EA580C] text-white p-4 sm:p-5 shadow-[0_18px_36px_-12px_rgba(124,45,18,0.42)] flex items-center justify-between gap-4">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#9A3412] via-[#C2410C] to-[#EA580C] text-white p-3.5 sm:p-5 shadow-[0_18px_36px_-12px_rgba(124,45,18,0.42)] flex items-center justify-between gap-3 sm:gap-4">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-y-0 w-36 bg-gradient-to-r from-transparent via-white/15 to-transparent animate-sheen"
           />
-          <div className="relative z-10 flex-1 space-y-2.5">
-            <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-              <span className="font-medium text-[#FDE2C4]">Argent encore disponible ce mois</span>
-              <span className="font-mono-num font-extrabold text-lg text-[#FAF0DF]">
+          <div className="relative z-10 flex-1 space-y-2">
+            <div className="flex flex-wrap items-center justify-between gap-1.5 text-xs sm:text-sm">
+              <span className="font-medium text-[#FDE2C4]">Disponible ce mois</span>
+              <span className="font-mono-num font-extrabold text-base sm:text-lg text-[#FAF0DF]">
                 <AnimatedNumber value={month.salaire.argentEncoreDisponible} />
               </span>
             </div>
@@ -230,8 +229,123 @@ export const DepensesView: React.FC<DepensesViewProps> = ({
           )}
         </AnimatePresence>
 
-        {/* 3 Category cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Mobile focused category picker + single detail card (no scattered stack) */}
+        <div className="md:hidden space-y-3">
+          <div className="grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-[#E8D2B2]/95 border border-[#D7B88E]">
+            {DEPENSES_ORDER.map((catKey) => {
+              const cat = month.depensesCategories[catKey];
+              const reste = Math.max(0, cat.budgetAlloue - cat.depenseCumulee);
+              const isSelected = activeCat === catKey;
+              const shortName =
+                catKey === 'maison'
+                  ? 'Maison'
+                  : catKey === 'internet'
+                    ? 'Internet'
+                    : 'Eau / Laver';
+              return (
+                <button
+                  key={catKey}
+                  type="button"
+                  onClick={() => setActiveCat(catKey)}
+                  className={`min-h-[48px] px-2 py-1.5 rounded-xl flex flex-col items-center justify-center transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-gradient-to-r from-[#C2410C] via-[#EA580C] to-[#F97316] text-white shadow-sm'
+                      : 'text-[#5C3A21] hover:text-[#1F160F]'
+                  }`}
+                >
+                  <span className="text-xs font-bold truncate max-w-full">{shortName}</span>
+                  <span
+                    className={`font-mono-num text-[10px] mt-0.5 truncate max-w-full ${
+                      isSelected ? 'text-[#FDE2C4]' : 'text-[#9A3412]/80'
+                    }`}
+                  >
+                    {cat.cloturee ? 'Clôturée' : `${reste.toLocaleString('fr-FR')} F`}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {(() => {
+            const cat = selectedCat;
+            const transferable = Math.min(resteSelected, month.salaire.argentEncoreDisponible);
+            const pct = Math.min(100, (cat.depenseCumulee / cat.budgetAlloue) * 100);
+            return (
+              <div className="border border-[#EA580C]/45 rounded-2xl p-3.5 bg-gradient-to-br from-[#EFE0C9] via-[#F6EAD6] to-[#FDE2C4]/75 space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-bold text-[#1F160F]">{cat.label}</h3>
+                    <p className="text-xs font-mono-num text-[#2B1E14]/75 mt-0.5">
+                      Dépensé : <strong className="text-[#1F160F]">{formatFCFA(cat.depenseCumulee)}</strong> /{' '}
+                      {formatFCFA(cat.budgetAlloue)}
+                    </p>
+                  </div>
+                  {cat.cloturee ? (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#15803D] shrink-0">
+                      <Lock className="w-3.5 h-3.5" />
+                      Clôturée
+                    </span>
+                  ) : (
+                    isMonthOpen &&
+                    salaryReady &&
+                    (confirmCloseCat === activeCat ? (
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          type="button"
+                          disabled={busy}
+                          onClick={() => handleCloseCategory(activeCat)}
+                          className="min-h-[36px] px-2.5 py-1 rounded-lg bg-gradient-to-r from-[#C2410C] to-[#EA580C] text-white text-[11px] font-bold cursor-pointer"
+                        >
+                          OK ({formatFCFA(transferable)})
+                        </button>
+                        <button
+                          type="button"
+                          disabled={busy}
+                          onClick={() => setConfirmCloseCat(null)}
+                          className="min-h-[36px] px-2 py-1 rounded-lg border border-[#DFC5A2] bg-[#FBF4E8] text-[11px] font-semibold cursor-pointer"
+                        >
+                          Non
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => setConfirmCloseCat(activeCat)}
+                        className="min-h-[36px] px-3 py-1 rounded-xl border border-[#C2410C]/45 bg-[#FBF4E8] text-[#9A3412] text-xs font-bold shrink-0 cursor-pointer"
+                      >
+                        Clôturer
+                      </button>
+                    ))
+                  )}
+                </div>
+
+                <div className="h-2.5 bg-[#E3CCA8] rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${pct}%` }}
+                    transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                    className="h-full rounded-full bg-gradient-to-r from-[#C2410C] via-[#EA580C] to-[#FB923C]"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-[#2B1E14]/70">
+                    {cat.cloturee ? 'Transféré Surplus' : 'Reste catégorie'}
+                  </span>
+                  <span className="font-mono-num font-bold text-[#C2410C]">
+                    {cat.cloturee
+                      ? formatFCFA(cat.resteTransfereSurplus)
+                      : formatFCFA(resteSelected)}
+                  </span>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+
+        {/* Desktop 3 Category cards */}
+        <div className="hidden md:grid md:grid-cols-3 gap-4">
           {DEPENSES_ORDER.map((catKey, idx) => {
             const cat = month.depensesCategories[catKey];
             const reste = Math.max(0, cat.budgetAlloue - cat.depenseCumulee);
@@ -353,15 +467,14 @@ export const DepensesView: React.FC<DepensesViewProps> = ({
         {isMonthOpen && (
           <form
             onSubmit={handleAddExpense}
-            className="border border-[#DFC5A2] rounded-2xl p-4 sm:p-5 bg-gradient-to-br from-[#EFE0C9] via-[#F6EAD6] to-[#FDE2C4]/70 space-y-4"
+            className="border border-[#DFC5A2] rounded-2xl p-3.5 sm:p-5 bg-gradient-to-br from-[#EFE0C9] via-[#F6EAD6] to-[#FDE2C4]/70 space-y-3.5 sm:space-y-4"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="text-sm font-bold text-[#9A3412]">
-                Ajouter une dépense — <span className="text-[#EA580C]">{selectedCat.label}</span>
+                Ajouter — <span className="text-[#EA580C]">{selectedCat.label}</span>
               </h3>
-              <span className="text-xs font-mono-num font-semibold text-[#15803D] bg-[#FBF4E8] px-2.5 py-1 rounded-lg border border-[#D7B88E]">
-                Plafond injectable :{' '}
-                {formatFCFA(Math.min(resteSelected, month.salaire.argentEncoreDisponible))}
+              <span className="text-[11px] sm:text-xs font-mono-num font-semibold text-[#15803D] bg-[#FBF4E8] px-2.5 py-1 rounded-lg border border-[#D7B88E]">
+                Max : {formatFCFA(Math.min(resteSelected, month.salaire.argentEncoreDisponible))}
               </span>
             </div>
 
@@ -371,9 +484,9 @@ export const DepensesView: React.FC<DepensesViewProps> = ({
               </p>
             ) : (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
                   <div>
-                    <label className="block text-xs font-semibold text-[#1F160F] mb-1">
+                    <label className="block text-[11px] sm:text-xs font-semibold text-[#1F160F] mb-1">
                       Date
                     </label>
                     <input
@@ -382,11 +495,11 @@ export const DepensesView: React.FC<DepensesViewProps> = ({
                       disabled={!canAddToSelected || busy}
                       value={date}
                       onChange={(e) => setDate(e.target.value)}
-                      className="w-full min-h-[44px] px-3 py-2 text-sm font-mono-num bg-[#FBF4E8] border border-[#D7B88E] rounded-xl focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
+                      className="w-full min-h-[44px] px-2.5 sm:px-3 py-2 text-base sm:text-sm font-mono-num bg-[#FBF4E8] border border-[#D7B88E] rounded-xl focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-[#1F160F] mb-1">
+                    <label className="block text-[11px] sm:text-xs font-semibold text-[#1F160F] mb-1">
                       Montant (F CFA)
                     </label>
                     <input
@@ -398,11 +511,11 @@ export const DepensesView: React.FC<DepensesViewProps> = ({
                       value={montant}
                       onChange={(e) => setMontant(e.target.value)}
                       placeholder="Ex. 2500"
-                      className="w-full min-h-[44px] px-3 py-2 text-sm font-mono-num bg-[#FBF4E8] border border-[#D7B88E] rounded-xl focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
+                      className="w-full min-h-[44px] px-2.5 sm:px-3 py-2 text-base sm:text-sm font-mono-num bg-[#FBF4E8] border border-[#D7B88E] rounded-xl focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-[#1F160F] mb-1">
+                  <div className="col-span-2 lg:col-span-1">
+                    <label className="block text-[11px] sm:text-xs font-semibold text-[#1F160F] mb-1">
                       Description
                     </label>
                     <input
@@ -413,11 +526,11 @@ export const DepensesView: React.FC<DepensesViewProps> = ({
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       placeholder="Ex. Riz 5 kg + huile"
-                      className="w-full min-h-[44px] px-3 py-2 text-sm bg-[#FBF4E8] border border-[#D7B88E] rounded-xl focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
+                      className="w-full min-h-[44px] px-3 py-2 text-base sm:text-sm bg-[#FBF4E8] border border-[#D7B88E] rounded-xl focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-[#1F160F] mb-1">
+                  <div className="col-span-2 lg:col-span-1">
+                    <label className="block text-[11px] sm:text-xs font-semibold text-[#1F160F] mb-1">
                       Note (optionnelle)
                     </label>
                     <input
@@ -427,7 +540,7 @@ export const DepensesView: React.FC<DepensesViewProps> = ({
                       value={note}
                       onChange={(e) => setNote(e.target.value)}
                       placeholder="Précision..."
-                      className="w-full min-h-[44px] px-3 py-2 text-sm bg-[#FBF4E8] border border-[#D7B88E] rounded-xl focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
+                      className="w-full min-h-[44px] px-3 py-2 text-base sm:text-sm bg-[#FBF4E8] border border-[#D7B88E] rounded-xl focus:outline-none focus:border-[#EA580C] focus:ring-2 focus:ring-[#FB923C]/25"
                     />
                   </div>
                 </div>

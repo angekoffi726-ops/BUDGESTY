@@ -302,8 +302,10 @@ export const CaissesView: React.FC<CaissesViewProps> = ({ userId, month }) => {
               </p>
             </div>
             <div className="min-h-[38px] sm:min-h-[42px] py-1.5 px-2 sm:px-3 rounded-xl bg-[#FAF0DF] text-[#9A3412] border border-[#D7B88E] text-[10px] sm:text-[11px] font-semibold flex items-center justify-center text-center leading-tight">
-              <span className="sm:hidden">40 000 F dans Fixes</span>
-              <span className="hidden sm:inline">Épargne mensuelle (40 000 F) gérée dans Fixes</span>
+              <span className="sm:hidden">30K perso + 10K Mehiel</span>
+              <span className="hidden sm:inline">
+                Épargne mensuelle (30 000 F perso + 10 000 F Mehiel) gérée dans Fixes
+              </span>
             </div>
           </motion.div>
 

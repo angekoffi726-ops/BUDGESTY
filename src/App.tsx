@@ -87,7 +87,38 @@ export default function App() {
     const unsub = onSnapshot(
       q,
       (snapshot) => {
-        const list = snapshot.docs.map((d) => d.data() as BudgetMonth);
+        const list = snapshot.docs.map((d) => {
+          const raw = d.data() as BudgetMonth & {
+            fixes: Record<string, { label: string; montant: number; valide: boolean; valideLe: string } | undefined>;
+          };
+          if (raw.fixes && ('epargne' in raw.fixes || !('epargne_personnelle' in raw.fixes))) {
+            const legacy = raw.fixes.epargne;
+            const wasValide = Boolean(legacy?.valide);
+            const valideLe = legacy?.valideLe ?? '';
+            return {
+              ...raw,
+              fixes: {
+                epargne_personnelle: raw.fixes.epargne_personnelle ?? {
+                  label: 'Épargne personnelle',
+                  montant: 30000,
+                  valide: wasValide,
+                  valideLe,
+                },
+                epargne_bloquee_mehiel: raw.fixes.epargne_bloquee_mehiel ?? {
+                  label: 'Épargne bloquée Mehiel',
+                  montant: 10000,
+                  valide: wasValide,
+                  valideLe,
+                },
+                soutien_famille: raw.fixes.soutien_famille!,
+                don_papa: raw.fixes.don_papa!,
+                femme_enfant: raw.fixes.femme_enfant!,
+                eau_boire: raw.fixes.eau_boire!,
+              },
+            } as BudgetMonth;
+          }
+          return raw as BudgetMonth;
+        });
         list.sort((a, b) => a.ordre - b.ordre);
         if (list.length > 0) {
           setMonths(list);

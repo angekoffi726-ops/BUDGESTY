@@ -45,7 +45,18 @@ export function buildInitialMonthData(userId: string, def: MonthDefinition): Bud
       dateLimite: def.dateLimiteLoyer,
     },
     fixes: {
-      epargne: { label: 'Épargne', montant: 40000, valide: false, valideLe: '' },
+      epargne_personnelle: {
+        label: 'Épargne personnelle',
+        montant: 30000,
+        valide: false,
+        valideLe: '',
+      },
+      epargne_bloquee_mehiel: {
+        label: 'Épargne bloquée Mehiel',
+        montant: 10000,
+        valide: false,
+        valideLe: '',
+      },
       soutien_famille: { label: 'Soutien Famille', montant: 30000, valide: false, valideLe: '' },
       don_papa: { label: 'Don à Papa', montant: 10000, valide: false, valideLe: '' },
       femme_enfant: { label: 'Femme et enfant', montant: 20000, valide: false, valideLe: '' },
@@ -80,14 +91,14 @@ export function buildInitialMonthData(userId: string, def: MonthDefinition): Bud
     caisses: {
       sante: {
         label: 'Caisse Santé',
-        dotationMensuelle: 5000,
+        dotationMensuelle: 7000,
         dotationAlimentee: false,
         soldePrecedent: 0,
         soldeActuel: 0,
       },
       vetements: {
         label: 'Caisse Vêtements',
-        dotationMensuelle: 7000,
+        dotationMensuelle: 5000,
         dotationAlimentee: false,
         soldePrecedent: 0,
         soldeActuel: 0,
@@ -130,13 +141,58 @@ export function subscribeLocalStore(callback: () => void): () => void {
   return () => window.removeEventListener(LOCAL_EVENT, handler);
 }
 
+function normalizeLocalMonth(m: BudgetMonth): BudgetMonth {
+  const rawFixes = m.fixes as unknown as Record<
+    string,
+    { label?: string; montant?: number; valide?: boolean; valideLe?: string } | undefined
+  >;
+  const legacyEpargne = rawFixes?.epargne;
+  const fixes =
+    legacyEpargne || !rawFixes?.epargne_personnelle || !rawFixes?.epargne_bloquee_mehiel
+      ? {
+          epargne_personnelle: {
+            label: 'Épargne personnelle',
+            montant: 30000,
+            valide: Boolean(legacyEpargne?.valide),
+            valideLe: typeof legacyEpargne?.valideLe === 'string' ? legacyEpargne.valideLe : '',
+          },
+          epargne_bloquee_mehiel: {
+            label: 'Épargne bloquée Mehiel',
+            montant: 10000,
+            valide: Boolean(legacyEpargne?.valide),
+            valideLe: typeof legacyEpargne?.valideLe === 'string' ? legacyEpargne.valideLe : '',
+          },
+          soutien_famille: m.fixes.soutien_famille,
+          don_papa: m.fixes.don_papa,
+          femme_enfant: m.fixes.femme_enfant,
+          eau_boire: m.fixes.eau_boire,
+        }
+      : m.fixes;
+
+  return {
+    ...m,
+    fixes,
+    caisses: {
+      ...m.caisses,
+      sante: {
+        ...m.caisses.sante,
+        dotationMensuelle: 7000,
+      },
+      vetements: {
+        ...m.caisses.vetements,
+        dotationMensuelle: 5000,
+      },
+    },
+  };
+}
+
 export function ensureLocalMonthsInitialized(): BudgetMonth[] {
   try {
     const raw = localStorage.getItem(KEY_MONTHS);
     if (raw) {
       const parsed = JSON.parse(raw) as BudgetMonth[];
       if (Array.isArray(parsed) && parsed.length === 12) {
-        return [...parsed].sort((a, b) => a.ordre - b.ordre);
+        return [...parsed].map(normalizeLocalMonth).sort((a, b) => a.ordre - b.ordre);
       }
     }
   } catch {

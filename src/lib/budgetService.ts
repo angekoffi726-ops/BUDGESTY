@@ -70,7 +70,18 @@ function buildInitialMonthDoc(userId: string, def: MonthDefinition): Record<stri
       dateLimite: def.dateLimiteLoyer,
     },
     fixes: {
-      epargne: { label: 'Épargne', montant: 40000, valide: false, valideLe: '' },
+      epargne_personnelle: {
+        label: 'Épargne personnelle',
+        montant: 30000,
+        valide: false,
+        valideLe: '',
+      },
+      epargne_bloquee_mehiel: {
+        label: 'Épargne bloquée Mehiel',
+        montant: 10000,
+        valide: false,
+        valideLe: '',
+      },
       soutien_famille: { label: 'Soutien Famille', montant: 30000, valide: false, valideLe: '' },
       don_papa: { label: 'Don à Papa', montant: 10000, valide: false, valideLe: '' },
       femme_enfant: { label: 'Femme et enfant', montant: 20000, valide: false, valideLe: '' },
@@ -105,14 +116,14 @@ function buildInitialMonthDoc(userId: string, def: MonthDefinition): Record<stri
     caisses: {
       sante: {
         label: 'Caisse Santé',
-        dotationMensuelle: 5000,
+        dotationMensuelle: 7000,
         dotationAlimentee: false,
         soldePrecedent: 0,
         soldeActuel: 0,
       },
       vetements: {
         label: 'Caisse Vêtements',
-        dotationMensuelle: 7000,
+        dotationMensuelle: 5000,
         dotationAlimentee: false,
         soldePrecedent: 0,
         soldeActuel: 0,
@@ -209,6 +220,106 @@ export async function bootstrapWorkspaceBudget(): Promise<void> {
     );
     const moisSnap = await getDocs(moisQuery);
     const existingMoisIds = new Set(moisSnap.docs.map((d) => d.id));
+
+    // Migrate any open or locked months from legacy fixes.epargne (40K) / caisses (5K/7K) schema
+    const docsToMigrate = moisSnap.docs.filter((d) => {
+      const data = d.data() as Record<string, unknown>;
+      if (data.statut === 'CLOTURE') return false;
+      const fixes = (data.fixes ?? {}) as Record<string, unknown>;
+      const caisses = (data.caisses ?? {}) as Record<string, { dotationMensuelle?: number }>;
+      const hasLegacyEpargne =
+        'epargne' in fixes ||
+        !('epargne_personnelle' in fixes) ||
+        !('epargne_bloquee_mehiel' in fixes);
+      const hasOldSante = caisses.sante?.dotationMensuelle !== 7000;
+      const hasOldVetements = caisses.vetements?.dotationMensuelle !== 5000;
+      return hasLegacyEpargne || hasOldSante || hasOldVetements;
+    });
+
+    if (docsToMigrate.length > 0) {
+      activePath = `users/${WORKSPACE_ID}/mois`;
+      for (let i = 0; i < docsToMigrate.length; i += 4) {
+        const chunk = docsToMigrate.slice(i, i + 4);
+        const migBatch = writeBatch(db);
+        for (const d of chunk) {
+          const data = d.data() as Record<string, unknown>;
+          const rawFixes = (data.fixes ?? {}) as Record<
+            string,
+            { label?: string; montant?: number; valide?: boolean; valideLe?: string } | undefined
+          >;
+          const rawCaisses = (data.caisses ?? {}) as Record<string, Record<string, unknown>>;
+
+          let nextFixes = rawFixes;
+          if (
+            'epargne' in rawFixes ||
+            !('epargne_personnelle' in rawFixes) ||
+            !('epargne_bloquee_mehiel' in rawFixes)
+          ) {
+            const legacyEpargne = rawFixes.epargne;
+            const wasValide = Boolean(legacyEpargne?.valide);
+            const valideLe =
+              typeof legacyEpargne?.valideLe === 'string' ? legacyEpargne.valideLe : '';
+            nextFixes = {
+              epargne_personnelle: {
+                label: 'Épargne personnelle',
+                montant: 30000,
+                valide: wasValide,
+                valideLe,
+              },
+              epargne_bloquee_mehiel: {
+                label: 'Épargne bloquée Mehiel',
+                montant: 10000,
+                valide: wasValide,
+                valideLe,
+              },
+              soutien_famille: rawFixes.soutien_famille ?? {
+                label: 'Soutien Famille',
+                montant: 30000,
+                valide: false,
+                valideLe: '',
+              },
+              don_papa: rawFixes.don_papa ?? {
+                label: 'Don à Papa',
+                montant: 10000,
+                valide: false,
+                valideLe: '',
+              },
+              femme_enfant: rawFixes.femme_enfant ?? {
+                label: 'Femme et enfant',
+                montant: 20000,
+                valide: false,
+                valideLe: '',
+              },
+              eau_boire: rawFixes.eau_boire ?? {
+                label: 'Eau à boire',
+                montant: 2000,
+                valide: false,
+                valideLe: '',
+              },
+            };
+          }
+
+          const nextCaisses = {
+            ...rawCaisses,
+            sante: {
+              ...(rawCaisses.sante ?? {}),
+              dotationMensuelle: 7000,
+            },
+            vetements: {
+              ...(rawCaisses.vetements ?? {}),
+              dotationMensuelle: 5000,
+            },
+          };
+
+          migBatch.update(d.ref, {
+            fixes: nextFixes,
+            caisses: nextCaisses,
+            updatedAt: serverTimestamp(),
+          });
+        }
+        await migBatch.commit();
+      }
+    }
 
     if (snap.exists() && existingMoisIds.size >= MONTHS_2027.length) {
       return;

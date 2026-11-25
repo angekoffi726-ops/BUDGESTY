@@ -14,7 +14,13 @@ export type NavTab = 'accueil' | 'loyer' | 'fixes' | 'depenses' | 'caisses' | 'h
 
 export type MonthStatus = 'OUVERT' | 'VERROUILLE' | 'CLOTURE';
 
-export type FixeKey = 'epargne' | 'soutien_famille' | 'don_papa' | 'femme_enfant' | 'eau_boire';
+export type FixeKey =
+  | 'epargne_personnelle'
+  | 'epargne_bloquee_mehiel'
+  | 'soutien_famille'
+  | 'don_papa'
+  | 'femme_enfant'
+  | 'eau_boire';
 
 export type DepenseCategoryKey = 'maison' | 'internet' | 'eau_laver';
 
@@ -259,7 +265,8 @@ export const MONTHS_2027: MonthDefinition[] = [
 ];
 
 export const FIXES_ORDER: FixeKey[] = [
-  'epargne',
+  'epargne_personnelle',
+  'epargne_bloquee_mehiel',
   'soutien_famille',
   'don_papa',
   'femme_enfant',

@@ -78,12 +78,13 @@ service cloud.firestore {
 
     function isValidFixesMap(f) {
       return f is map
-        && f.size() == 5
-        && f.epargne.montant == 40000
-        && f.soutien_famille.montant == 30000
-        && f.don_papa.montant == 10000
-        && f.femme_enfant.montant == 20000
-        && f.eau_boire.montant == 2000;
+        && f.size() == 6
+        && f.epargne_personnelle.montant == 30000 && f.epargne_personnelle.valide is bool
+        && f.epargne_bloquee_mehiel.montant == 10000 && f.epargne_bloquee_mehiel.valide is bool
+        && f.soutien_famille.montant == 30000 && f.soutien_famille.valide is bool
+        && f.don_papa.montant == 10000 && f.don_papa.valide is bool
+        && f.femme_enfant.montant == 20000 && f.femme_enfant.valide is bool
+        && f.eau_boire.montant == 2000 && f.eau_boire.valide is bool;
     }
 
     function isValidDepensesCategoriesMap(dc) {
@@ -97,8 +98,8 @@ service cloud.firestore {
     function isValidCaissesMap(cs) {
       return cs is map
         && cs.size() == 5
-        && cs.sante.dotationMensuelle == 5000 && cs.sante.soldeActuel is int && cs.sante.soldeActuel >= 0
-        && cs.vetements.dotationMensuelle == 7000 && cs.vetements.soldeActuel is int && cs.vetements.soldeActuel >= 0
+        && cs.sante.dotationMensuelle == 7000 && cs.sante.soldeActuel is int && cs.sante.soldeActuel >= 0
+        && cs.vetements.dotationMensuelle == 5000 && cs.vetements.soldeActuel is int && cs.vetements.soldeActuel >= 0
         && cs.secours.dotationMensuelle == 5000 && cs.secours.soldeActuel is int && cs.secours.soldeActuel >= 0
         && cs.epargne.dotationMensuelle == 0 && cs.epargne.soldeActuel is int && cs.epargne.soldeActuel >= 0
         && cs.surplus.dotationMensuelle == 0 && cs.surplus.soldeActuel is int && cs.surplus.soldeActuel >= 0;
@@ -135,9 +136,10 @@ service cloud.firestore {
 
     function respectsIrreversibility(next, prev) {
       return (!prev.salaire.alimentee || (next.salaire.alimentee && next.salaire.montantActif == prev.salaire.montantActif && next.salaire.excedentTransfere == prev.salaire.excedentTransfere))
-        && (next.salaire.alimentee || (!next.loyer.paye && !next.fixes.epargne.valide && !next.fixes.soutien_famille.valide && !next.fixes.don_papa.valide && !next.fixes.femme_enfant.valide && !next.fixes.eau_boire.valide && !next.caisses.sante.dotationAlimentee && !next.caisses.vetements.dotationAlimentee && !next.caisses.secours.dotationAlimentee))
+        && (next.salaire.alimentee || (!next.loyer.paye && !next.fixes.epargne_personnelle.valide && !next.fixes.epargne_bloquee_mehiel.valide && !next.fixes.soutien_famille.valide && !next.fixes.don_papa.valide && !next.fixes.femme_enfant.valide && !next.fixes.eau_boire.valide && !next.caisses.sante.dotationAlimentee && !next.caisses.vetements.dotationAlimentee && !next.caisses.secours.dotationAlimentee))
         && (!prev.loyer.paye || next.loyer.paye)
-        && (!prev.fixes.epargne.valide || next.fixes.epargne.valide)
+        && (!prev.fixes.epargne_personnelle.valide || next.fixes.epargne_personnelle.valide)
+        && (!prev.fixes.epargne_bloquee_mehiel.valide || next.fixes.epargne_bloquee_mehiel.valide)
         && (!prev.fixes.soutien_famille.valide || next.fixes.soutien_famille.valide)
         && (!prev.fixes.don_papa.valide || next.fixes.don_papa.valide)
         && (!prev.fixes.femme_enfant.valide || next.fixes.femme_enfant.valide)
@@ -148,6 +150,15 @@ service cloud.firestore {
         && (!prev.caisses.sante.dotationAlimentee || next.caisses.sante.dotationAlimentee)
         && (!prev.caisses.vetements.dotationAlimentee || next.caisses.vetements.dotationAlimentee)
         && (!prev.caisses.secours.dotationAlimentee || next.caisses.secours.dotationAlimentee);
+    }
+
+    function isSchemaMigration(next, prev) {
+      return prev.statut in ['OUVERT', 'VERROUILLE']
+        && next.statut == prev.statut
+        && (
+          prev.caisses.sante.dotationMensuelle != 7000
+          || prev.caisses.vetements.dotationMensuelle != 5000
+        );
     }
 
     function isValidExpenseEntry(data, userId, moisId) {
@@ -228,25 +239,24 @@ service cloud.firestore {
           && incoming().updatedAt == request.time
           && (
             (
-              existing().statut == 'VERROUILLE'
-              && incoming().statut == 'OUVERT'
-              && incoming().diff(existing()).affectedKeys().hasOnly(['statut', 'caisses', 'updatedAt'])
-            )
-            ||
-            (
               existing().statut == 'OUVERT'
               && incoming().statut == 'OUVERT'
+              && existing().caisses.sante.dotationMensuelle == 7000
+              && existing().caisses.vetements.dotationMensuelle == 5000
               && respectsIrreversibility(incoming(), existing())
-              && incoming().diff(existing()).affectedKeys().hasOnly([
-                'salaire', 'loyer', 'fixes', 'depensesCategories', 'caisses', 'updatedAt'
-              ])
+            )
+            ||
+            isSchemaMigration(incoming(), existing())
+            ||
+            (
+              existing().statut == 'VERROUILLE'
+              && incoming().statut == 'OUVERT'
             )
             ||
             (
               existing().statut == 'OUVERT'
               && incoming().statut == 'CLOTURE'
               && incoming().clotureLe.size() >= 1
-              && incoming().diff(existing()).affectedKeys().hasOnly(['statut', 'clotureLe', 'updatedAt'])
             )
           );
         allow delete: if false;
